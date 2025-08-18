@@ -1,5 +1,7 @@
+import 'package:book_hotel/pages/bottom_nav.dart';
 import 'package:book_hotel/pages/signup_page.dart';
 import 'package:book_hotel/services/widget_support.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
@@ -10,6 +12,43 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
+  String? email, password;
+
+  TextEditingController emailController = TextEditingController();
+  TextEditingController passwordController = TextEditingController();
+
+  userLogin() async {
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email!,
+        password: password!,
+      );
+      Navigator.push(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return BottomNavBar();
+          },
+        ),
+      );
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('No user found for that email')));
+      } else if (e.code == 'wrong-password') {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Wrong password provided by user')),
+        );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text(e.code)));
+      }
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -44,6 +83,7 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: TextField(
+                  controller: emailController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(
                       Icons.mail,
@@ -71,6 +111,8 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(20.0),
                 ),
                 child: TextField(
+                  obscureText: true,
+                  controller: passwordController,
                   decoration: InputDecoration(
                     prefixIcon: Icon(
                       Icons.password,
@@ -85,7 +127,12 @@ class _LoginPageState extends State<LoginPage> {
               Align(
                 alignment: Alignment.bottomRight,
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    /*  Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (context) => SignupPage()),
+                      ); */
+                  },
                   child: Padding(
                     padding: const EdgeInsets.only(right: 20.0),
                     child: Text(
@@ -98,7 +145,16 @@ class _LoginPageState extends State<LoginPage> {
               const SizedBox(height: 20.0),
               Center(
                 child: GestureDetector(
-                  onTap: () {},
+                  onTap: () {
+                    if (passwordController.text.isNotEmpty &&
+                        emailController.text.isNotEmpty) {
+                      setState(() {
+                        email = emailController.text;
+                        password = passwordController.text;
+                      });
+                      userLogin();
+                    }
+                  },
                   child: Container(
                     width: MediaQuery.of(context).size.width / 2,
                     height: 50.0,
