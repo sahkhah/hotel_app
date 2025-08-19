@@ -9,6 +9,14 @@ class AppWidget {
     );
   }
 
+  static TextStyle boldWhiteTextStyle(double size) {
+    return TextStyle(
+      color: Colors.white,
+      fontSize: size,
+      fontWeight: FontWeight.bold,
+    );
+  }
+
 
   static TextStyle headLineTextStyle(double size) {
     return TextStyle(
