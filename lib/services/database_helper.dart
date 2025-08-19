@@ -8,13 +8,14 @@ class DatabaseMethods {
         .set(userInfo);
   }
 
-
   Future addHotel(Map<String, dynamic> hotelInfo, String id) async {
     return await FirebaseFirestore.instance
-        .collection('Users')
+        .collection('Hotels')
         .doc(id)
         .set(hotelInfo);
   }
 
- 
+  Future<Stream<QuerySnapshot>> getHotel() async {
+    return FirebaseFirestore.instance.collection('Hotels').snapshots();
+  }
 }
