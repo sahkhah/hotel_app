@@ -1,3 +1,4 @@
+import 'package:book_hotel/pages/detail_page.dart';
 import 'package:book_hotel/services/database_helper.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -13,11 +14,9 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   Stream? hotelStream;
 
-  getData() async{
-   hotelStream = await DatabaseMethods().getHotel();
-   setState(() {
-     
-   });
+  getData() async {
+    hotelStream = await DatabaseMethods().getHotel();
+    setState(() {});
   }
 
   @override
@@ -30,81 +29,34 @@ class _HomePageState extends State<HomePage> {
     return StreamBuilder(
       stream: hotelStream,
       builder: (context, AsyncSnapshot snapshot) {
-        return snapshot.hasData ?
-        SizedBox(
-          height: 300,
-          child: ListView.builder(
-            itemCount: snapshot.data.docs.length,
-            scrollDirection: Axis.horizontal,
-            shrinkWrap: true,
-            itemBuilder: (context, index) {
-              DocumentSnapshot ds = snapshot.data.docs[index];
-                return Container(
-                margin: const EdgeInsets.only(left: 20.0),
-                child: Material(
-                  borderRadius: BorderRadius.circular(20.0),
-                  elevation: 3.0,
-                  child: Container(
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(30.0),
-                      color: Colors.white,
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        ClipRRect(
-                          borderRadius: BorderRadius.circular(30.0),
-                          child: Image.asset(
-                            'images/hotel1.jpg',
-                            fit: BoxFit.cover,
-                            height: 220.0,
-                            width: MediaQuery.of(context).size.width / 1.2,
-                          ),
+        return snapshot.hasData
+            ? SizedBox(
+              height: 300,
+              child: ListView.builder(
+                itemCount: snapshot.data.docs.length,
+                scrollDirection: Axis.horizontal,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return GestureDetector(
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder:
+                              (context) => DetailPage(
+                                name: ds['hotelName'],
+                                price: ds['hotelCharges'],
+                                wifi: ds['wi-fi'],
+                                tv: ds['HD-TV'],
+                                bathroom: ds['Bathroom'],
+                                kitchen: ds['Kitchen'],
+                                description: ds['hotelDescription'],
+                              ),
                         ),
-                        const SizedBox(height: 10.0),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 20.0,),
-                          child: Row(
-                            children: [
-                              Text(
-                                ds['hotelName'],
-                                style: AppWidget.headLineTextStyle(22.0),
-                              ),
-                              SizedBox(
-                                width: 30.0,
-                              ),
-                              Text(
-                                '\$${ds['hotelCharges']}',
-                                style: AppWidget.headLineTextStyle(22.0),
-                              ),
-                            ],
-                          ),
-                        ),
-                        const SizedBox(height: 5.0),
-                        Padding(
-                          padding: const EdgeInsets.only(left: 10.0, right: 10.0,),
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.location_on,
-                                color: Colors.blue,
-                                size: 30.0,
-                              ),
-                              const SizedBox(width: 5.0),
-                              Text(
-                               ds['hotelAddress'],style: AppWidget.normalTextStyle(18.0),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              );
-            },
-          ),
-        ) : Container(
+                      );
+                    },
+                    child: Container(
                       margin: const EdgeInsets.only(left: 20.0),
                       child: Material(
                         borderRadius: BorderRadius.circular(20.0),
@@ -133,16 +85,12 @@ class _HomePageState extends State<HomePage> {
                                 child: Row(
                                   children: [
                                     Text(
-                                      'Hotel Beach',
+                                      ds['hotelName'],
                                       style: AppWidget.headLineTextStyle(22.0),
                                     ),
-                                    SizedBox(
-                                      width:
-                                          MediaQuery.of(context).size.width /
-                                          4.0,
-                                    ),
+                                    SizedBox(width: 30.0),
                                     Text(
-                                      '\$20',
+                                      '\$${ds['hotelCharges']}',
                                       style: AppWidget.headLineTextStyle(22.0),
                                     ),
                                   ],
@@ -150,7 +98,10 @@ class _HomePageState extends State<HomePage> {
                               ),
                               const SizedBox(height: 5.0),
                               Padding(
-                                padding: const EdgeInsets.only(left: 10.0),
+                                padding: const EdgeInsets.only(
+                                  left: 10.0,
+                                  right: 10.0,
+                                ),
                                 child: Row(
                                   children: [
                                     Icon(
@@ -160,7 +111,7 @@ class _HomePageState extends State<HomePage> {
                                     ),
                                     const SizedBox(width: 5.0),
                                     Text(
-                                      'Near Obasanjo Way, Abeokuta',
+                                      ds['hotelAddress'],
                                       style: AppWidget.normalTextStyle(18.0),
                                     ),
                                   ],
@@ -170,7 +121,75 @@ class _HomePageState extends State<HomePage> {
                           ),
                         ),
                       ),
-                    );
+                    ),
+                  );
+                },
+              ),
+            )
+            : Container(
+              margin: const EdgeInsets.only(left: 20.0),
+              child: Material(
+                borderRadius: BorderRadius.circular(20.0),
+                elevation: 3.0,
+                child: Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(30.0),
+                    color: Colors.white,
+                  ),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      ClipRRect(
+                        borderRadius: BorderRadius.circular(30.0),
+                        child: Image.asset(
+                          'images/hotel1.jpg',
+                          fit: BoxFit.cover,
+                          height: 220.0,
+                          width: MediaQuery.of(context).size.width / 1.2,
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Row(
+                          children: [
+                            Text(
+                              'Hotel Beach',
+                              style: AppWidget.headLineTextStyle(22.0),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width / 4.0,
+                            ),
+                            Text(
+                              '\$20',
+                              style: AppWidget.headLineTextStyle(22.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                      const SizedBox(height: 5.0),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 10.0),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.location_on,
+                              color: Colors.blue,
+                              size: 30.0,
+                            ),
+                            const SizedBox(width: 5.0),
+                            Text(
+                              'Near Obasanjo Way, Abeokuta',
+                              style: AppWidget.normalTextStyle(18.0),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
       },
     );
   }
@@ -261,7 +280,7 @@ class _HomePageState extends State<HomePage> {
                 ),
               ),
               const SizedBox(height: 15.0),
-             allHotels(),
+              allHotels(),
               SizedBox(height: 20.0),
               Padding(
                 padding: const EdgeInsets.only(left: 15.0),

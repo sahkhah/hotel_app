@@ -1,5 +1,6 @@
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class DetailPage extends StatefulWidget {
   final String name;
@@ -26,9 +27,60 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
+  
+  TextEditingController guestController = TextEditingController();
+  DateTime? startDate;
+  DateTime? endDate;
+  int? daysDifference;
+
+  Future getStartDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      firstDate: DateTime(2015),
+      initialDate: startDate ?? DateTime.now(),
+      lastDate: DateTime(2026),
+    );
+
+    if (picked != null) {
+      setState(() {
+        startDate = picked;
+        calculateDifference();
+      });
+    }
+  }
+
+  Future getEndDate(BuildContext context) async {
+    final picked = await showDatePicker(
+      context: context,
+      initialDate:
+          endDate ?? (startDate ?? DateTime.now()).add(const Duration(days: 1)),
+      firstDate: startDate ?? DateTime(2000),
+      lastDate: DateTime(2026),
+    );
+
+    if (picked != null) {
+      setState(() {
+        endDate = picked;
+        calculateDifference();
+      });
+    }
+  }
+
+  void calculateDifference() {
+    if (startDate != null && endDate != null) {
+      daysDifference = endDate!.difference(startDate!).inDays;
+    }
+  }
+
+  String formatDate(DateTime? date) {
+    return date != null
+        ? DateFormat('EEE dd, MM yyyy').format(date)
+        : 'Select Date';
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
+        return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           child: Column(
@@ -76,11 +128,11 @@ class _DetailPageState extends State<DetailPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    Text(widget.name, style: AppWidget.headLineTextStyle(25.0)),
                     Text(
-                      widget.name,
-                      style: AppWidget.headLineTextStyle(25.0),
+                      '\$${widget.price}',
+                      style: AppWidget.normalTextStyle(25.0),
                     ),
-                    Text('\$${widget.price}', style: AppWidget.normalTextStyle(25.0)),
                     Divider(thickness: 2.0),
                     const SizedBox(height: 10.0),
                     Text(
@@ -88,40 +140,58 @@ class _DetailPageState extends State<DetailPage> {
                       style: AppWidget.headLineTextStyle(22.0),
                     ),
                     const SizedBox(height: 5.0),
-                   widget.wifi == 'true' ?  Row(
-                      children: [
-                        Icon(Icons.wifi, color: Colors.blue, size: 30.0),
-                        const SizedBox(width: 10.0),
-                        Text('WIFI', style: AppWidget.normalTextStyle(22.0)),
-                      ],
-                    ) : SizedBox(),
+                    widget.wifi == 'true'
+                        ? Row(
+                          children: [
+                            Icon(Icons.wifi, color: Colors.blue, size: 30.0),
+                            const SizedBox(width: 10.0),
+                            Text(
+                              'WIFI',
+                              style: AppWidget.normalTextStyle(22.0),
+                            ),
+                          ],
+                        )
+                        : SizedBox(),
                     const SizedBox(height: 20.0),
-                     widget.kitchen == 'true' ? Row(
-                      children: [
-                        Icon(Icons.kitchen, color: Colors.blue, size: 30.0),
-                        const SizedBox(width: 10.0),
-                        Text('Kitchen', style: AppWidget.normalTextStyle(22.0)),
-                      ],
-                    ) : SizedBox(),
+                    widget.kitchen == 'true'
+                        ? Row(
+                          children: [
+                            Icon(Icons.kitchen, color: Colors.blue, size: 30.0),
+                            const SizedBox(width: 10.0),
+                            Text(
+                              'Kitchen',
+                              style: AppWidget.normalTextStyle(22.0),
+                            ),
+                          ],
+                        )
+                        : SizedBox(),
                     const SizedBox(height: 20.0),
-                     widget.tv == 'true' ? Row(
-                      children: [
-                        Icon(Icons.tv, color: Colors.blue, size: 30.0),
-                        const SizedBox(width: 10.0),
-                        Text('TV', style: AppWidget.normalTextStyle(22.0)),
-                      ],
-                    ) : SizedBox(),
+                    widget.tv == 'true'
+                        ? Row(
+                          children: [
+                            Icon(Icons.tv, color: Colors.blue, size: 30.0),
+                            const SizedBox(width: 10.0),
+                            Text('TV', style: AppWidget.normalTextStyle(22.0)),
+                          ],
+                        )
+                        : SizedBox(),
                     const SizedBox(height: 20.0),
-                     widget.bathroom == 'true' ? Row(
-                      children: [
-                        Icon(Icons.bathroom, color: Colors.blue, size: 30.0),
-                        const SizedBox(width: 10.0),
-                        Text(
-                          'Bathroom',
-                          style: AppWidget.normalTextStyle(22.0),
-                        ),
-                      ],
-                    ): SizedBox(),
+                    widget.bathroom == 'true'
+                        ? Row(
+                          children: [
+                            Icon(
+                              Icons.bathroom,
+                              color: Colors.blue,
+                              size: 30.0,
+                            ),
+                            const SizedBox(width: 10.0),
+                            Text(
+                              'Bathroom',
+                              style: AppWidget.normalTextStyle(22.0),
+                            ),
+                          ],
+                        )
+                        : SizedBox(),
                     Divider(thickness: 2.0),
                     const SizedBox(height: 5.0),
                     Text(
@@ -129,7 +199,8 @@ class _DetailPageState extends State<DetailPage> {
                       style: AppWidget.headLineTextStyle(20.0),
                     ),
                     Text(
-                      widget.description, style: AppWidget.headLineTextStyle(20.0),
+                      widget.description,
+                      style: AppWidget.headLineTextStyle(18.0),
                     ),
                     const SizedBox(height: 10.0),
                     Material(
@@ -147,12 +218,12 @@ class _DetailPageState extends State<DetailPage> {
                           children: [
                             const SizedBox(height: 10.0),
                             Text(
-                              '\$100 for 4 nights',
+                              '\$100 for $daysDifference nights',
                               style: AppWidget.headLineTextStyle(20.0),
                             ),
                             const SizedBox(height: 3.0),
                             Text(
-                              'Check-in Date',
+                              'Check-In Date',
                               style: AppWidget.normalTextStyle(18.0),
                             ),
                             Divider(),
@@ -164,22 +235,25 @@ class _DetailPageState extends State<DetailPage> {
                                     color: Colors.blue,
                                     borderRadius: BorderRadius.circular(20.0),
                                   ),
-                                  child: Icon(
-                                    Icons.calendar_month,
-                                    color: Colors.white,
-                                    size: 30.0,
+                                  child: GestureDetector(
+                                    onTap: () => getStartDate(context),
+                                    child: Icon(
+                                      Icons.calendar_month,
+                                      color: Colors.white,
+                                      size: 25.0,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 10.0),
                                 Text(
-                                  '12, Aug 2025',
+                                  formatDate(startDate),
                                   style: AppWidget.normalTextStyle(20.0),
                                 ),
                               ],
                             ),
                             const SizedBox(height: 10.0),
                             Text(
-                              'Check-in Date',
+                              'Check-Out Date',
                               style: AppWidget.normalTextStyle(18.0),
                             ),
                             Divider(),
@@ -191,15 +265,18 @@ class _DetailPageState extends State<DetailPage> {
                                     color: Colors.blue,
                                     borderRadius: BorderRadius.circular(20.0),
                                   ),
-                                  child: Icon(
-                                    Icons.calendar_month,
-                                    color: Colors.white,
-                                    size: 30.0,
+                                  child: GestureDetector(
+                                    onTap: () => getEndDate(context),
+                                    child: Icon(
+                                      Icons.calendar_month,
+                                      color: Colors.white,
+                                      size: 25.0,
+                                    ),
                                   ),
                                 ),
                                 const SizedBox(width: 10.0),
                                 Text(
-                                  '20, Aug 2025',
+                                  formatDate(endDate),
                                   style: AppWidget.normalTextStyle(20.0),
                                 ),
                               ],
@@ -216,9 +293,11 @@ class _DetailPageState extends State<DetailPage> {
                                 color: Color(0xffececf8),
                               ),
                               child: TextField(
+                                style: AppWidget.headLineTextStyle(20.0),
+                                controller: guestController,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
-                                  hintText: '1',
+                                 hintText: '1',
                                   hintStyle: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 20.0,
