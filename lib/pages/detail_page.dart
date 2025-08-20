@@ -1,6 +1,9 @@
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
+import 'package:flutter_stripe/flutter_stripe.dart';
+import 'dart:convert';
+import 'package:http/http.dart' as http;
 
 class DetailPage extends StatefulWidget {
   final String name;
@@ -27,11 +30,18 @@ class DetailPage extends StatefulWidget {
 }
 
 class _DetailPageState extends State<DetailPage> {
-  
   TextEditingController guestController = TextEditingController();
   DateTime? startDate;
   DateTime? endDate;
-  int? daysDifference;
+  int daysDifference = 1;
+  int? finalAmount;
+
+  @override
+  void initState() {
+    finalAmount = int.parse(widget.price);
+
+    super.initState();
+  }
 
   Future getStartDate(BuildContext context) async {
     final picked = await showDatePicker(
@@ -69,6 +79,7 @@ class _DetailPageState extends State<DetailPage> {
   void calculateDifference() {
     if (startDate != null && endDate != null) {
       daysDifference = endDate!.difference(startDate!).inDays;
+      finalAmount = int.parse(widget.price) * daysDifference;
     }
   }
 
@@ -80,7 +91,7 @@ class _DetailPageState extends State<DetailPage> {
 
   @override
   Widget build(BuildContext context) {
-        return Scaffold(
+    return Scaffold(
       body: SingleChildScrollView(
         child: Container(
           child: Column(
@@ -218,7 +229,7 @@ class _DetailPageState extends State<DetailPage> {
                           children: [
                             const SizedBox(height: 10.0),
                             Text(
-                              '\$100 for $daysDifference nights',
+                              '\$$finalAmount for $daysDifference nights',
                               style: AppWidget.headLineTextStyle(20.0),
                             ),
                             const SizedBox(height: 3.0),
@@ -293,11 +304,15 @@ class _DetailPageState extends State<DetailPage> {
                                 color: Color(0xffececf8),
                               ),
                               child: TextField(
+                                onChanged: (value) {
+                                  finalAmount = finalAmount! * int.parse(value);
+                                  setState(() {});
+                                },
                                 style: AppWidget.headLineTextStyle(20.0),
                                 controller: guestController,
                                 decoration: InputDecoration(
                                   border: InputBorder.none,
-                                 hintText: '1',
+                                  hintText: '1',
                                   hintStyle: TextStyle(
                                     fontWeight: FontWeight.w500,
                                     fontSize: 20.0,
@@ -333,5 +348,43 @@ class _DetailPageState extends State<DetailPage> {
         ),
       ),
     );
+  }
+
+  Future<void> makePayment(String amount) async {
+    try {
+      final paymentIntent = await createPaymentIntent(amount, 'AOD');
+      await Stripe.instance.initPaymentSheet(
+        paymentSheetParameters: SetupPaymentSheetParameters(
+          paymentIntentClientSecret: paymentIntent,
+          merchantDisplayName: 'Hotel Booking',
+          style: ThemeMode.dark,
+        ),
+      ).then((value){});
+
+      displayPaymentSheet(amount);
+
+      print('payment sucessful');
+    } catch (e,s) {
+      print('$e, $s');
+    }
+  }
+
+  Future<String?> createPaymentIntent(String amount, String value) async {
+    final url = Uri.parse('http://localhost:3000/create-payment-intent');
+    final response = await http.post(url);
+    if (response.statusCode == 200) {
+      final jsonResponse = json.decode(response.body);
+      return jsonResponse['clientSecret'];
+    } else {
+      throw Exception('Failed to create payment intent');
+    }
+  }
+
+  void displayPaymentSheet(String amount) async {
+    try {
+      await Stripe.instance.presentPaymentSheet().then((value) {
+
+      });
+    } catch (e) {}
   }
 }
