@@ -48,7 +48,7 @@ class _DetailPageState extends State<DetailPage> {
   getOnTheLoad() async {
     userName = await SharedPrefHelper().getUserName();
     userId = await SharedPrefHelper().getUserId();
-    userImage = await SharedPrefHelper().getUserImage();
+    userImage = await SharedPrefHelper().getUserImage() ?? 'Image dosen\'t exist';
     setState(() {});
   }
 
@@ -322,7 +322,7 @@ class _DetailPageState extends State<DetailPage> {
                               child: TextField(
                                 onChanged: (value) {
                                   finalAmount = finalAmount! * int.parse(value);
-                                  //setState(() {});
+                                  setState(() {});
                                 },
                                 style: AppWidget.headLineTextStyle(20.0),
                                 controller: guestController,
@@ -377,14 +377,16 @@ class _DetailPageState extends State<DetailPage> {
       await Stripe.instance
           .initPaymentSheet(
             paymentSheetParameters: SetupPaymentSheetParameters(
-              paymentIntentClientSecret: paymentIntent,
+              paymentIntentClientSecret: paymentIntent.toString(),
               merchantDisplayName: 'Hotel Booking',
               style: ThemeMode.dark,
             ),
           )
-          .then((value) {});
-
+          .then((value) {
       displayPaymentSheet(amount);
+
+          });
+
 
       print('payment sucessful');
     } catch (e, s) {
@@ -417,11 +419,13 @@ class _DetailPageState extends State<DetailPage> {
   void displayPaymentSheet(String amount) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
+
         String userBookingId = randomNumeric(10);
+
         Map<String, dynamic> userBookingInfo = {
           'userName': userName,
           'userId': userId,
-          'userImage': userImage,
+          //'userImage': userImage,
           'checkIn': formatDate(startDate),
           'checkOut': formatDate(endDate),
           'noOfGuests': guestController.text,
@@ -464,7 +468,9 @@ class _DetailPageState extends State<DetailPage> {
           },
         );
       });
-    } catch (e) {}
+    } catch (e) {
+
+    }
   }
 
   calculateAmount(String amount) {
