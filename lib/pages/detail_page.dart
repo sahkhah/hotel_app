@@ -306,7 +306,7 @@ class _DetailPageState extends State<DetailPage> {
                               child: TextField(
                                 onChanged: (value) {
                                   finalAmount = finalAmount! * int.parse(value);
-                                  setState(() {});
+                                  //setState(() {});
                                 },
                                 style: AppWidget.headLineTextStyle(20.0),
                                 controller: guestController,
@@ -353,18 +353,20 @@ class _DetailPageState extends State<DetailPage> {
   Future<void> makePayment(String amount) async {
     try {
       final paymentIntent = await createPaymentIntent(amount, 'AOD');
-      await Stripe.instance.initPaymentSheet(
-        paymentSheetParameters: SetupPaymentSheetParameters(
-          paymentIntentClientSecret: paymentIntent,
-          merchantDisplayName: 'Hotel Booking',
-          style: ThemeMode.dark,
-        ),
-      ).then((value){});
+      await Stripe.instance
+          .initPaymentSheet(
+            paymentSheetParameters: SetupPaymentSheetParameters(
+              paymentIntentClientSecret: paymentIntent,
+              merchantDisplayName: 'Hotel Booking',
+              style: ThemeMode.dark,
+            ),
+          )
+          .then((value) {});
 
       displayPaymentSheet(amount);
 
       print('payment sucessful');
-    } catch (e,s) {
+    } catch (e, s) {
       print('$e, $s');
     }
   }
@@ -382,8 +384,26 @@ class _DetailPageState extends State<DetailPage> {
 
   void displayPaymentSheet(String amount) async {
     try {
-      await Stripe.instance.presentPaymentSheet().then((value) {
-
+      await Stripe.instance.presentPaymentSheet().then((value) async {
+        showDialog(
+          context: context,
+          builder: (_) {
+            return AlertDialog(
+              content: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Row(
+                    children: [
+                      Icon(Icons.check_circle, color: Colors.green),
+                      Text('Payment Sucessful'),
+                    ],
+                  ),
+                ],
+              ),
+            );
+            //paymentIntent = null;
+          },
+        );
       });
     } catch (e) {}
   }
