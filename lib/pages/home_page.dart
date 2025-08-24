@@ -51,7 +51,8 @@ class _HomePageState extends State<HomePage> {
                                 tv: ds['HD-TV'],
                                 bathroom: ds['Bathroom'],
                                 kitchen: ds['Kitchen'],
-                                description: ds['hotelDescription'],
+                                description: ds['hotelDescription'], 
+                                id: ds['id'],
                               ),
                         ),
                       );

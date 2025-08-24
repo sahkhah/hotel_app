@@ -1,9 +1,15 @@
+import 'dart:io';
+
+import 'package:book_hotel/services/constant.dart';
+import 'package:book_hotel/services/database_helper.dart';
+import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:flutter_stripe/flutter_stripe.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:random_string/random_string.dart';
 
 class DetailPage extends StatefulWidget {
   final String name;
@@ -12,6 +18,7 @@ class DetailPage extends StatefulWidget {
   final String tv;
   final String bathroom;
   final String kitchen;
+  final String id;
   final String description;
 
   const DetailPage({
@@ -23,6 +30,7 @@ class DetailPage extends StatefulWidget {
     required this.bathroom,
     required this.kitchen,
     required this.description,
+    required this.id,
   });
 
   @override
@@ -35,11 +43,19 @@ class _DetailPageState extends State<DetailPage> {
   DateTime? endDate;
   int daysDifference = 1;
   int? finalAmount;
+  String? userName, userId, userImage;
+
+  getOnTheLoad() async {
+    userName = await SharedPrefHelper().getUserName();
+    userId = await SharedPrefHelper().getUserId();
+    userImage = await SharedPrefHelper().getUserImage();
+    setState(() {});
+  }
 
   @override
   void initState() {
     finalAmount = int.parse(widget.price);
-
+    getOnTheLoad();
     super.initState();
   }
 
@@ -321,17 +337,22 @@ class _DetailPageState extends State<DetailPage> {
                               ),
                             ),
                             const SizedBox(height: 20.0),
-                            Container(
-                              width: double.infinity,
-                              height: 50.0,
-                              decoration: BoxDecoration(
-                                borderRadius: BorderRadius.circular(20.0),
-                                color: Colors.blue,
-                              ),
-                              child: Center(
-                                child: Text(
-                                  'Book Now',
-                                  style: AppWidget.whiteTextStyle(20.0),
+                            GestureDetector(
+                              onTap: () {
+                                makePayment(finalAmount.toString());
+                              },
+                              child: Container(
+                                width: double.infinity,
+                                height: 50.0,
+                                decoration: BoxDecoration(
+                                  borderRadius: BorderRadius.circular(20.0),
+                                  color: Colors.blue,
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    'Book Now',
+                                    style: AppWidget.whiteTextStyle(20.0),
+                                  ),
                                 ),
                               ),
                             ),
@@ -352,7 +373,7 @@ class _DetailPageState extends State<DetailPage> {
 
   Future<void> makePayment(String amount) async {
     try {
-      final paymentIntent = await createPaymentIntent(amount, 'AOD');
+      final paymentIntent = await createPaymentIntent(amount, 'USD');
       await Stripe.instance
           .initPaymentSheet(
             paymentSheetParameters: SetupPaymentSheetParameters(
@@ -371,20 +392,58 @@ class _DetailPageState extends State<DetailPage> {
     }
   }
 
-  Future<String?> createPaymentIntent(String amount, String value) async {
-    final url = Uri.parse('http://localhost:3000/create-payment-intent');
-    final response = await http.post(url);
-    if (response.statusCode == 200) {
-      final jsonResponse = json.decode(response.body);
-      return jsonResponse['clientSecret'];
-    } else {
-      throw Exception('Failed to create payment intent');
+  createPaymentIntent(String amount, String currency) async {
+    try {
+      Map<String, dynamic> body = {
+        'amount': calculateAmount(amount),
+        'currency': currency,
+        'payment_method_types[]': 'card',
+      };
+      final url = Uri.parse('http://api.stripe.com/v1/payment_intents');
+      final response = await http.post(
+        url,
+        headers: {
+          'Authorization': 'Bearer $secretKey',
+          'Content-Type': 'application/x-www-form-urlencoded',
+        },
+        body: body,
+      );
+      return jsonDecode(response.body);
+    } catch (e, s) {
+      print('error charging client $e $s');
     }
   }
 
   void displayPaymentSheet(String amount) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
+        String userBookingId = randomNumeric(10);
+        Map<String, dynamic> userBookingInfo = {
+          'userName': userName,
+          'userId': userId,
+          'userImage': userImage,
+          'checkIn': formatDate(startDate),
+          'checkOut': formatDate(endDate),
+          'noOfGuests': guestController.text,
+          'amount': finalAmount.toString(),
+          'hotelName': widget.name,
+        };
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Wrong password provided by user')),
+        );
+
+        await DatabaseMethods().addUserBooking(
+          userBookingInfo,
+          userId!,
+          userBookingId,
+        );
+        await DatabaseMethods().addHotelOwnerBooking(
+          userBookingInfo,
+          widget.id,
+          userBookingId,
+        );
+
         showDialog(
           context: context,
           builder: (_) {
@@ -406,5 +465,10 @@ class _DetailPageState extends State<DetailPage> {
         );
       });
     } catch (e) {}
+  }
+
+  calculateAmount(String amount) {
+    final calculatedAmount = (int.parse(amount) * 100);
+    return calculatedAmount.toString();
   }
 }
