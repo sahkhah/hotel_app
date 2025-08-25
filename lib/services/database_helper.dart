@@ -22,21 +22,37 @@ class DatabaseMethods {
     return FirebaseFirestore.instance.collection('Hotels').snapshots();
   }
 
-
-    Future addUserBooking(Map<String, dynamic> userInfo, String id, String bookingId) async {
+  Future addUserBooking(
+    Map<String, dynamic> userInfo,
+    String id,
+    String bookingId,
+  ) async {
     return await FirebaseFirestore.instance
         .collection('Users')
-        .doc(id).collection('Booking').doc(bookingId)
+        .doc(id)
+        .collection('Booking')
+        .doc(bookingId)
         .set(userInfo);
   }
 
-
-    Future addHotelOwnerBooking(Map<String, dynamic> userInfo, String id, String bookingId) async {
+  Future addHotelOwnerBooking(
+    Map<String, dynamic> userInfo,
+    String id,
+    String bookingId,
+  ) async {
     return await FirebaseFirestore.instance
         .collection('Hotels')
-        .doc(id).collection('Booking').doc(bookingId)
+        .doc(id)
+        .collection('Booking')
+        .doc(bookingId)
         .set(userInfo);
   }
 
-
+  Future<Stream<QuerySnapshot>> getUserBookings(String id) async {
+    return FirebaseFirestore.instance
+        .collection('Users')
+        .doc(id)
+        .collection('Booking')
+        .snapshots();
+  }
 }
