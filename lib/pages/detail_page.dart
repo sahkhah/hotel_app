@@ -48,7 +48,8 @@ class _DetailPageState extends State<DetailPage> {
   getOnTheLoad() async {
     userName = await SharedPrefHelper().getUserName();
     userId = await SharedPrefHelper().getUserId();
-    userImage = await SharedPrefHelper().getUserImage() ?? 'Image dosen\'t exist';
+    userImage =
+        await SharedPrefHelper().getUserImage() ?? 'Image dosen\'t exist';
     setState(() {});
   }
 
@@ -78,6 +79,7 @@ class _DetailPageState extends State<DetailPage> {
   Future getEndDate(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
+      //this is a very important line of code, end date should start from startdate  or add  extra days
       initialDate:
           endDate ?? (startDate ?? DateTime.now()).add(const Duration(days: 1)),
       firstDate: startDate ?? DateTime(2000),
@@ -338,7 +340,36 @@ class _DetailPageState extends State<DetailPage> {
                             ),
                             const SizedBox(height: 20.0),
                             GestureDetector(
-                              onTap: () {
+                              onTap: () async {
+
+                                 String userBookingId = randomNumeric(10);
+                                 
+                              Map<String, dynamic> userBookingInfo = {
+                                'userName': userName,
+                                'userId': userId,
+                                //'userImage': userImage,
+                                'checkIn': formatDate(startDate),
+                                'checkOut': formatDate(endDate),
+                                'noOfGuests': guestController.text,
+                                'amount': finalAmount.toString(),
+                                'hotelName': widget.name,
+                              };
+
+                                await DatabaseMethods().addUserBooking(
+                                userBookingInfo,
+                                userId!,
+                                userBookingId,
+                              );
+
+                              await DatabaseMethods().addHotelOwnerBooking(
+                                userBookingInfo,
+                                widget.id,
+                                userBookingId,
+                              );
+
+                                ScaffoldMessenger.of(
+                                  context,
+                                ).showSnackBar(SnackBar(content: Text('Booked Successfully')));
                                 makePayment(finalAmount.toString());
                               },
                               child: Container(
@@ -410,6 +441,7 @@ class _DetailPageState extends State<DetailPage> {
         },
         body: body,
       );
+      print('create payment response body:  ${response.body}');
       return jsonDecode(response.body);
     } catch (e, s) {
       print('error charging client $e $s');
@@ -419,9 +451,7 @@ class _DetailPageState extends State<DetailPage> {
   void displayPaymentSheet(String amount) async {
     try {
       await Stripe.instance.presentPaymentSheet().then((value) async {
-
         String userBookingId = randomNumeric(10);
-
         Map<String, dynamic> userBookingInfo = {
           'userName': userName,
           'userId': userId,
@@ -433,9 +463,7 @@ class _DetailPageState extends State<DetailPage> {
           'hotelName': widget.name,
         };
 
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text('Wrong password provided by user')),
-        );
+        
 
         await DatabaseMethods().addUserBooking(
           userBookingInfo,
@@ -448,10 +476,12 @@ class _DetailPageState extends State<DetailPage> {
           userBookingId,
         );
 
+       
+
         showDialog(
           context: context,
           builder: (_) {
-            return AlertDialog(
+          return AlertDialog(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -468,9 +498,11 @@ class _DetailPageState extends State<DetailPage> {
           },
         );
       });
-    } catch (e) {
-
-    }
+     
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Booked Successfully')));
+    } catch (e) {}
   }
 
   calculateAmount(String amount) {

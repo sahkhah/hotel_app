@@ -14,7 +14,13 @@ class _HotelownerHomeState extends State<HotelownerHome> {
       body: Container(
         child: Column(
           children: [
-            
+            Container(
+              child: Column(
+                children: [
+                  
+                ],
+              ),
+            )
           ],
         ),
       ),

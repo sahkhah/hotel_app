@@ -33,7 +33,7 @@ class DatabaseMethods {
 
     Future addHotelOwnerBooking(Map<String, dynamic> userInfo, String id, String bookingId) async {
     return await FirebaseFirestore.instance
-        .collection('Hotel')
+        .collection('Hotels')
         .doc(id).collection('Booking').doc(bookingId)
         .set(userInfo);
   }
