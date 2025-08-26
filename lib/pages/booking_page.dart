@@ -3,6 +3,7 @@ import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
 
 class BookingPage extends StatefulWidget {
   const BookingPage({super.key});
@@ -41,97 +42,211 @@ class _BookingPageState extends State<BookingPage> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  return Material(
-                     elevation: 2.0,
-                     borderRadius: BorderRadius.circular(10.0),
-                     child: Container(
-                       padding: EdgeInsets.all(5.0),
-                       width: MediaQuery.of(context).size.width,
-                       decoration: BoxDecoration(
-                         color: Color(0xffececf8),
-                         borderRadius: BorderRadius.circular(10.0),
-                       ),
-                       child: Row(
-                         children: [
-                           ClipRRect(
-                             borderRadius: BorderRadius.circular(30.0),
-                             child: Image.asset(
-                               'images/hotel1.jpg',
-                               height: 100,
-                               width: 100,
-                               fit: BoxFit.cover,
-                             ),
-                           ),
-                           const SizedBox(width: 10.0),
-                           Column(
-                             crossAxisAlignment: CrossAxisAlignment.start,
-                             children: [
-                               Row(
-                                 children: [
-                                   Icon(
-                                     Icons.hotel,
-                                     color: Colors.blue,
-                                     size: 25.0,
-                                   ),
-                                   const SizedBox(width: 10.0),
-                                   Text(
-                                     ds['hotelName'],
-                                     style: AppWidget.headLineTextStyle(18.0),
-                                   ),
-                                 ],
-                               ),
-                               const SizedBox(height: 5.0),
-                               Row(
-                                 children: [
-                                   Icon(
-                                     Icons.calendar_month,
-                                     color: Colors.blue,
-                                     size: 25.0,
-                                   ),
-                                   const SizedBox(width: 5.0),
-                                   SizedBox(
-                                     width:
-                                         MediaQuery.of(context).size.width / 3,
-                                     child: Text(
-                                       '${ds['checkIn']} to ${ds['checkOut']}',
-                                       style: AppWidget.normalTextStyle(15.0),
-                                     ),
-                                   ),
-                                 ],
-                               ),
-                               const SizedBox(height: 5.0),
-                               Row(
-                                 children: [
-                                   Icon(
-                                     Icons.group,
-                                     color: Colors.blue,
-                                     size: 30.0,
-                                   ),
-                                   const SizedBox(width: 7.0),
-                                   Text(
-                                     ds['noOfGuests'],
-                                     style: AppWidget.headLineTextStyle(18.0),
-                                   ),
-                                   const SizedBox(width: 10.0),
-                                   Icon(
-                                     Icons.monetization_on,
-                                     color: Colors.blue,
-                                     size: 25.0,
-                                   ),
-                                   const SizedBox(width: 7.0),
-                                   Text(
-                                     ds['amount'],
-                                     style: AppWidget.headLineTextStyle(18.0),
-                                   ),
-                                 ],
-                               ),
-                              
-                             ],
-                           ),
-                         ],
-                       ),
-                     ),
-                   );
+                  final format = DateFormat('EEE dd, MM yyyy');
+                  final date = format.parse(ds['checkIn']);
+                  final now = DateTime.now();
+
+                  return date.isBefore(now) && past
+                      ? Material(
+                        elevation: 2.0,
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: Container(
+                          padding: EdgeInsets.all(5.0),
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            color: Color(0xffececf8),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(30.0),
+                                child: Image.asset(
+                                  'images/hotel1.jpg',
+                                  height: 100, 
+                                  width: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: 10.0),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.hotel,
+                                        color: Colors.blue,
+                                        size: 25.0,
+                                      ),
+                                      const SizedBox(width: 10.0),
+                                      Text(
+                                        ds['hotelName'],
+                                        style: AppWidget.headLineTextStyle(
+                                          18.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_month,
+                                        color: Colors.blue,
+                                        size: 25.0,
+                                      ),
+                                      const SizedBox(width: 5.0),
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                            3,
+                                        child: Text(
+                                          '${ds['checkIn']} to ${ds['checkOut']}',
+                                          style: AppWidget.normalTextStyle(
+                                            15.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.group,
+                                        color: Colors.blue,
+                                        size: 30.0,
+                                      ),
+                                      const SizedBox(width: 7.0),
+                                      Text(
+                                        ds['noOfGuests'],
+                                        style: AppWidget.headLineTextStyle(
+                                          18.0,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10.0),
+                                      Icon(
+                                        Icons.monetization_on,
+                                        color: Colors.blue,
+                                        size: 25.0,
+                                      ),
+                                      const SizedBox(width: 7.0),
+                                      Text(
+                                        ds['amount'],
+                                        style: AppWidget.headLineTextStyle(
+                                          18.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      : date.isAfter(now) && incoming
+                      ? Material(
+                        elevation: 2.0,
+                        borderRadius: BorderRadius.circular(10.0),
+                        child: Container(
+                          padding: EdgeInsets.all(5.0),
+                          width: MediaQuery.of(context).size.width,
+                          decoration: BoxDecoration(
+                            color: Color(0xffececf8),
+                            borderRadius: BorderRadius.circular(10.0),
+                          ),
+                          child: Row(
+                            children: [
+                              ClipRRect(
+                                borderRadius: BorderRadius.circular(30.0),
+                                child: Image.asset(
+                                  'images/hotel1.jpg',
+                                  height: 100,
+                                  width: 100,
+                                  fit: BoxFit.cover,
+                                ),
+                              ),
+                              const SizedBox(width: 10.0),
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.hotel,
+                                        color: Colors.blue,
+                                        size: 25.0,
+                                      ),
+                                      const SizedBox(width: 10.0),
+                                      Text(
+                                        ds['hotelName'],
+                                        style: AppWidget.headLineTextStyle(
+                                          18.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.calendar_month,
+                                        color: Colors.blue,
+                                        size: 25.0,
+                                      ),
+                                      const SizedBox(width: 5.0),
+                                      SizedBox(
+                                        width:
+                                            MediaQuery.of(context).size.width /
+                                            3,
+                                        child: Text(
+                                          '${ds['checkIn']} to ${ds['checkOut']}',
+                                          style: AppWidget.normalTextStyle(
+                                            15.0,
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  const SizedBox(height: 5.0),
+                                  Row(
+                                    children: [
+                                      Icon(
+                                        Icons.group,
+                                        color: Colors.blue,
+                                        size: 30.0,
+                                      ),
+                                      const SizedBox(width: 7.0),
+                                      Text(
+                                        ds['noOfGuests'],
+                                        style: AppWidget.headLineTextStyle(
+                                          18.0,
+                                        ),
+                                      ),
+                                      const SizedBox(width: 10.0),
+                                      Icon(
+                                        Icons.monetization_on,
+                                        color: Colors.blue,
+                                        size: 25.0,
+                                      ),
+                                      const SizedBox(width: 7.0),
+                                      Text(
+                                        ds['amount'],
+                                        style: AppWidget.headLineTextStyle(
+                                          18.0,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      )
+                      : Container();
                 },
               ),
             )
@@ -278,6 +393,7 @@ class _BookingPageState extends State<BookingPage> {
             ),
             const SizedBox(height: 20.0),
             allBookings(),
+            const SizedBox(height: 20.0),
           ],
         ),
       ),
