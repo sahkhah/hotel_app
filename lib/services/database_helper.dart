@@ -4,6 +4,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:http/http.dart' as http;
 
 class DatabaseMethods {
+  //collected id from our end
   Future addUser(Map<String, dynamic> userInfo, String id) async {
     return await FirebaseFirestore.instance
         .collection('Users')
@@ -11,10 +12,12 @@ class DatabaseMethods {
         .set(userInfo);
   }
 
-  Future addHotel(Map<String, dynamic> hotelInfo, String id) async {
+  //id is from the saved hotel owner user...
+  //a hotel owner can also be a user
+  Future addHotel(Map<String, dynamic> hotelInfo, String userId) async {
     return await FirebaseFirestore.instance
         .collection('Hotels')
-        .doc(id)
+        .doc(userId)
         .set(hotelInfo);
   }
 
@@ -51,6 +54,15 @@ class DatabaseMethods {
   Future<Stream<QuerySnapshot>> getUserBookings(String id) async {
     return FirebaseFirestore.instance
         .collection('Users')
+        .doc(id)
+        .collection('Booking')
+        .snapshots();
+  }
+
+
+  Future<Stream<QuerySnapshot>> getHotelOwnerBookings(String id) async {
+    return FirebaseFirestore.instance
+        .collection('Hotels')
         .doc(id)
         .collection('Booking')
         .snapshots();

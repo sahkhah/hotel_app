@@ -33,7 +33,7 @@ class _LoginPageState extends State<LoginPage> {
       role = snapshot.docs[0]['role'];
 
 
-     role == 'owner' ?  Navigator.push(
+     role == 'owner' ?  Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
@@ -41,7 +41,7 @@ class _LoginPageState extends State<LoginPage> {
             return HotelownerHome();
           },
         ),
-      ) :  Navigator.push(
+      ) :  Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
@@ -146,7 +146,7 @@ class _LoginPageState extends State<LoginPage> {
                 alignment: Alignment.bottomRight,
                 child: GestureDetector(
                   onTap: () {
-                    /*  Navigator.push(
+                    /*  Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(builder: (context) => SignupPage()),
                       ); */
@@ -200,7 +200,7 @@ class _LoginPageState extends State<LoginPage> {
                   const SizedBox(width: 5.0),
                   GestureDetector(
                     onTap: () {
-                      Navigator.push(
+                      Navigator.pushReplacement(
                         context,
                         MaterialPageRoute(
                           builder:

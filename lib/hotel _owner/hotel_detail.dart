@@ -22,6 +22,19 @@ class _HotelDetailState extends State<HotelDetail> {
   bool isChecked3 = false;
   bool isChecked4 = false;
 
+  String? userId;
+
+  getOnTheShared() async {
+    userId = await SharedPrefHelper().getUserId();
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getOnTheShared();
+    super.initState();
+  }
+
   TextEditingController hotelName = TextEditingController();
   TextEditingController hotelCharges = TextEditingController();
   TextEditingController hotelAddress = TextEditingController();
@@ -265,7 +278,7 @@ class _HotelDetailState extends State<HotelDetail> {
                       Center(
                         child: GestureDetector(
                           onTap: () async {
-                            String id = randomAlphaNumeric(10);
+                            //String id = randomAlphaNumeric(10);
 
                             /*  Reference firebaseStorage = FirebaseStorage.instance
                                 .ref()
@@ -281,7 +294,7 @@ class _HotelDetailState extends State<HotelDetail> {
                                 await (await task).ref.getDownloadURL(); */
 
                             Map<String, dynamic> hotelMap = {
-                              'id': id,
+                              'id': userId,
                               'image': "'",
                               'hotelName': hotelName.text,
                               'hotelCharges': hotelCharges.text,
@@ -293,8 +306,8 @@ class _HotelDetailState extends State<HotelDetail> {
                               'Bathroom': isChecked4 ? 'true' : 'false',
                             };
 
-                            await DatabaseMethods().addHotel(hotelMap, id);
-                            await SharedPrefHelper().saveUserId(id);
+                            await DatabaseMethods().addHotel(hotelMap, userId!);
+                            //await SharedPrefHelper().saveUserId(userId);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 backgroundColor: Colors.green,

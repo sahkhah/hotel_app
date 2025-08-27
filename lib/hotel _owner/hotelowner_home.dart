@@ -1,3 +1,5 @@
+import 'package:book_hotel/services/database_helper.dart';
+import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -11,7 +13,21 @@ class HotelownerHome extends StatefulWidget {
 }
 
 class _HotelownerHomeState extends State<HotelownerHome> {
+  String? userId, name;
   Stream? hotelBookings;
+
+  getOnTheShared() async {
+    userId = await SharedPrefHelper().getUserId();
+    name = await SharedPrefHelper().getUserName();
+    hotelBookings = await DatabaseMethods().getHotelOwnerBookings(userId!);
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    getOnTheShared();
+    super.initState();
+  }
 
   @override
   Widget allBookings() {
