@@ -1,5 +1,6 @@
 // ignore_for_file: use_build_context_synchronously
 
+import 'package:book_hotel/hotel%20_owner/hotel_detail.dart';
 import 'package:book_hotel/pages/bottom_nav.dart';
 import 'package:book_hotel/pages/home_page.dart';
 import 'package:book_hotel/pages/login_page.dart';
@@ -11,7 +12,9 @@ import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
 
 class SignupPage extends StatefulWidget {
-  const SignupPage({super.key});
+  String redirect;
+
+  SignupPage({super.key, required this.redirect});
 
   @override
   State<SignupPage> createState() => _SignupPageState();
@@ -31,9 +34,9 @@ class _SignupPageState extends State<SignupPage> {
         // ignore: unused_local_variable
         UserCredential credential = await FirebaseAuth.instance
             .createUserWithEmailAndPassword(email: email!, password: password!);
-            
+
         String id = randomAlphaNumeric(10);
-        
+
         await SharedPrefHelper().saveUserId(id);
         await SharedPrefHelper().saveUsername(nameController.text);
         await SharedPrefHelper().saveUserEmail(emailController.text);
@@ -44,17 +47,26 @@ class _SignupPageState extends State<SignupPage> {
           'email': email,
           'id': id,
           'image': imageUrl,
+          'role': widget.redirect == 'Owner' ? 'Owner' : 'User',
         };
 
         await DatabaseMethods().addUser(userInfo, id);
 
-         ScaffoldMessenger.of(
-          context,
-        ).showSnackBar(SnackBar(backgroundColor: Colors.green, content: Text('Registered Successfully'),),);
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => BottomNavBar()),
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            backgroundColor: Colors.green,
+            content: Text('Registered Successfully'),
+          ),
         );
+        widget.redirect == 'Owner'
+            ? Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => HotelDetail()),
+            )
+            : Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => BottomNavBar()),
+            );
       } on FirebaseAuthException catch (e) {
         switch (e.code) {
           case 'weak-password':
@@ -197,15 +209,17 @@ class _SignupPageState extends State<SignupPage> {
               Center(
                 child: GestureDetector(
                   onTap: () {
-                    if(nameController.text.isNotEmpty && passwordController.text.isNotEmpty && emailController.text.isNotEmpty){
+                    if (nameController.text.isNotEmpty &&
+                        passwordController.text.isNotEmpty &&
+                        emailController.text.isNotEmpty) {
                       setState(() {
-                      email = emailController.text;
-                      password = passwordController.text;
-                      name = nameController.text;
-                    });
-                    registration();
+                        email = emailController.text;
+                        password = passwordController.text;
+                        name = nameController.text;
+                      });
+                      registration();
                     }
-                },
+                  },
                   child: Container(
                     width: MediaQuery.of(context).size.width / 2,
                     height: 50.0,
@@ -235,7 +249,10 @@ class _SignupPageState extends State<SignupPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => LoginPage()),
+                        MaterialPageRoute(
+                          builder:
+                              (context) => LoginPage(redirect: widget.redirect),
+                        ),
                       );
                     },
                     child: Text(

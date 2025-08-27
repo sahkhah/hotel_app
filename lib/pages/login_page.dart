@@ -1,18 +1,21 @@
+import 'package:book_hotel/hotel%20_owner/hotelowner_home.dart';
 import 'package:book_hotel/pages/bottom_nav.dart';
 import 'package:book_hotel/pages/signup_page.dart';
+import 'package:book_hotel/services/database_helper.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 class LoginPage extends StatefulWidget {
-  const LoginPage({super.key});
+  String redirect;
+  LoginPage({super.key, required this.redirect});
 
   @override
   State<LoginPage> createState() => _LoginPageState();
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String? email, password;
+  String? email, password, name, id, role;
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -23,7 +26,22 @@ class _LoginPageState extends State<LoginPage> {
         email: email!,
         password: password!,
       );
-      Navigator.push(
+
+      final snapshot = await DatabaseMethods().getUserByEmail(email!);
+      name = snapshot.docs[0]['name'];
+      id = snapshot.docs[0]['id'];
+      role = snapshot.docs[0]['role'];
+
+
+     role == 'owner' ?  Navigator.push(
+        // ignore: use_build_context_synchronously
+        context,
+        MaterialPageRoute(
+          builder: (context) {
+            return HotelownerHome();
+          },
+        ),
+      ) :  Navigator.push(
         // ignore: use_build_context_synchronously
         context,
         MaterialPageRoute(
@@ -31,7 +49,7 @@ class _LoginPageState extends State<LoginPage> {
             return BottomNavBar();
           },
         ),
-      );
+      ) ;
     } on FirebaseAuthException catch (e) {
       if (e.code == 'user-not-found') {
         ScaffoldMessenger.of(
@@ -184,7 +202,11 @@ class _LoginPageState extends State<LoginPage> {
                     onTap: () {
                       Navigator.push(
                         context,
-                        MaterialPageRoute(builder: (context) => SignupPage()),
+                        MaterialPageRoute(
+                          builder:
+                              (context) =>
+                                  SignupPage(redirect: widget.redirect),
+                        ),
                       );
                     },
                     child: Text(

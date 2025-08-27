@@ -55,4 +55,11 @@ class DatabaseMethods {
         .collection('Booking')
         .snapshots();
   }
+
+  Future<QuerySnapshot> getUserByEmail(String email) async {
+    return await FirebaseFirestore.instance
+        .collection('Users')
+        .where('Email', isEqualTo: email)
+        .get();
+  }
 }

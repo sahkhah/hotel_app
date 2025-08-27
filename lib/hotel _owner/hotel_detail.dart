@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:book_hotel/hotel%20_owner/hotelowner_home.dart';
 import 'package:book_hotel/services/database_helper.dart';
+import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -266,7 +267,7 @@ class _HotelDetailState extends State<HotelDetail> {
                           onTap: () async {
                             String id = randomAlphaNumeric(10);
 
-                           /*  Reference firebaseStorage = FirebaseStorage.instance
+                            /*  Reference firebaseStorage = FirebaseStorage.instance
                                 .ref()
                                 .child('blogImage')
                                 .child(id);
@@ -293,10 +294,13 @@ class _HotelDetailState extends State<HotelDetail> {
                             };
 
                             await DatabaseMethods().addHotel(hotelMap, id);
+                            await SharedPrefHelper().saveUserId(id);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
                                 backgroundColor: Colors.green,
-                                content: Text('Hotel Details has been uploaded successfully'),
+                                content: Text(
+                                  'Hotel Details has been uploaded successfully',
+                                ),
                               ),
                             );
                             Navigator.push(

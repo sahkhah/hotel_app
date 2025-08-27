@@ -1,5 +1,6 @@
 import 'package:book_hotel/hotel%20_owner/hotel_detail.dart';
 import 'package:book_hotel/hotel%20_owner/hotelowner_home.dart';
+import 'package:book_hotel/onboarding.dart';
 import 'package:book_hotel/pages/bottom_nav.dart';
 import 'package:book_hotel/pages/detail_page.dart';
 import 'package:book_hotel/pages/home_page.dart';
@@ -29,7 +30,7 @@ class MyApp extends StatelessWidget {
       theme: ThemeData(
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const HotelownerHome(),
+      home: const OnboardingPage(),
     );
   }
 }
