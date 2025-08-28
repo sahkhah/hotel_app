@@ -30,7 +30,7 @@ class _HotelownerHomeState extends State<HotelownerHome> {
   }
 
   @override
-  Widget allBookings() {
+  Widget allAdminBookings() {
     return StreamBuilder(
       stream: hotelBookings,
       builder: (context, AsyncSnapshot snapshot) {
@@ -154,6 +154,7 @@ class _HotelownerHomeState extends State<HotelownerHome> {
     );
   }
 
+  @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
@@ -198,6 +199,25 @@ class _HotelownerHomeState extends State<HotelownerHome> {
                       ),
                     ],
                   ),
+                ),
+                Container(
+                  margin: EdgeInsets.only(
+                    top: MediaQuery.of(context).size.height / 4.5,
+                  ),
+                  width: MediaQuery.of(context).size.width,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
+                     color: Color(0xffececf8),
+                    ),
+                    child: Column(
+                      children: [
+                        SizedBox(height: 20.0,),
+                        Container(
+                          height: MediaQuery.of(context).size.height/1.4,
+                          child: allAdminBookings(),
+                        )
+                      ],
+                    ),
                 ),
               ],
             ),
