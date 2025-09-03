@@ -4,6 +4,7 @@ class SharedPrefHelper {
   static String userIdKey = 'USERKEY';
   static String userEmailKey = 'USEREMAILKEY';
   static String userNameKey = 'USERNAMEKEY';
+  static String hotelOwnerUserNameKey = 'HOTELOWNERUSERNAMEKEY';
   static String userImageKey = 'USERIMAGEKEY';
 
   Future<bool> saveUserId(String userId) async {
@@ -14,6 +15,10 @@ class SharedPrefHelper {
   Future<bool> saveUsername(String userName) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.setString(userNameKey, userName);
+  }
+  Future<bool> saveHotelOwnerUsername(String userName) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.setString(hotelOwnerUserNameKey, userName);
   }
 
   Future<bool> saveUserEmail(String userEmail) async {
@@ -34,6 +39,11 @@ class SharedPrefHelper {
   Future<String?> getUserName() async{
      SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString(userNameKey);
+  }
+
+  Future<String?> getHotelOwnerUserName() async{
+     SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(hotelOwnerUserNameKey);
   }
 
   Future<String?> getUserEmail() async{

@@ -13,14 +13,20 @@ class HotelownerHome extends StatefulWidget {
 }
 
 class _HotelownerHomeState extends State<HotelownerHome> {
-  String? userId, name;
+  String? hotelOwnerId, name;
   Stream? hotelBookings;
 
   getOnTheShared() async {
-    userId = await SharedPrefHelper().getUserId();
+    hotelOwnerId = await SharedPrefHelper().getUserId();
     name = await SharedPrefHelper().getUserName();
-    hotelBookings = await DatabaseMethods().getHotelOwnerBookings(userId!);
-    setState(() {});
+     hotelBookings = await DatabaseMethods().getHotelOwnerBookings(
+        hotelOwnerId!,
+      );
+
+    setState(()  {
+     
+    });
+    print('userId is $hotelOwnerId');
   }
 
   @override
@@ -34,122 +40,109 @@ class _HotelownerHomeState extends State<HotelownerHome> {
     return StreamBuilder(
       stream: hotelBookings,
       builder: (context, AsyncSnapshot snapshot) {
+        //print(snapshot.data);
         return snapshot.hasData
-            ? SizedBox(
+            ? Container(
+              margin: const EdgeInsets.all(20.0),
               child: ListView.builder(
                 itemCount: snapshot.data.docs.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  final format = DateFormat('EEE dd, MM yyyy');
-                  final date = format.parse(ds['checkIn']);
-                  final now = DateTime.now();
-
-                  return date.isBefore(now)
-                      ? Material(
-                        elevation: 2.0,
+                  return Material(
+                    elevation: 2.0,
+                    borderRadius: BorderRadius.circular(10.0),
+                    child: Container(
+                      padding: EdgeInsets.all(5.0),
+                      width: MediaQuery.of(context).size.width,
+                      decoration: BoxDecoration(
+                        color: Color(0xffececf8),
                         borderRadius: BorderRadius.circular(10.0),
-                        child: Container(
-                          padding: EdgeInsets.all(5.0),
-                          width: MediaQuery.of(context).size.width,
-                          decoration: BoxDecoration(
-                            color: Color(0xffececf8),
-                            borderRadius: BorderRadius.circular(10.0),
+                      ),
+                      child: Row(
+                        children: [
+                          ClipRRect(
+                            borderRadius: BorderRadius.circular(30.0),
+                            child: Image.asset(
+                              'images/hotel1.jpg',
+                              height: 100,
+                              width: 100,
+                              fit: BoxFit.cover,
+                            ),
                           ),
-                          child: Row(
+                          const SizedBox(width: 10.0),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(30.0),
-                                child: Image.asset(
-                                  'images/hotel1.jpg',
-                                  height: 100,
-                                  width: 100,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              const SizedBox(width: 10.0),
-                              Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
+                              Row(
                                 children: [
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.hotel,
-                                        color: Colors.blue,
-                                        size: 25.0,
-                                      ),
-                                      const SizedBox(width: 10.0),
-                                      Text(
-                                        ds['hotelName'],
-                                        style: AppWidget.headLineTextStyle(
-                                          18.0,
-                                        ),
-                                      ),
-                                    ],
+                                  Icon(
+                                    Icons.hotel,
+                                    color: Colors.blue,
+                                    size: 25.0,
                                   ),
-                                  const SizedBox(height: 5.0),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.calendar_month,
-                                        color: Colors.blue,
-                                        size: 25.0,
-                                      ),
-                                      const SizedBox(width: 5.0),
-                                      SizedBox(
-                                        width:
-                                            MediaQuery.of(context).size.width /
-                                            3,
-                                        child: Text(
-                                          '${ds['checkIn']} to ${ds['checkOut']}',
-                                          style: AppWidget.normalTextStyle(
-                                            15.0,
-                                          ),
-                                        ),
-                                      ),
-                                    ],
+                                  const SizedBox(width: 10.0),
+                                  Text(
+                                    ds['hotelName'],
+                                    style: AppWidget.headLineTextStyle(18.0),
                                   ),
-                                  const SizedBox(height: 5.0),
-                                  Row(
-                                    children: [
-                                      Icon(
-                                        Icons.group,
-                                        color: Colors.blue,
-                                        size: 30.0,
-                                      ),
-                                      const SizedBox(width: 7.0),
-                                      Text(
-                                        ds['noOfGuests'],
-                                        style: AppWidget.headLineTextStyle(
-                                          18.0,
-                                        ),
-                                      ),
-                                      const SizedBox(width: 10.0),
-                                      Icon(
-                                        Icons.monetization_on,
-                                        color: Colors.blue,
-                                        size: 25.0,
-                                      ),
-                                      const SizedBox(width: 7.0),
-                                      Text(
-                                        ds['amount'],
-                                        style: AppWidget.headLineTextStyle(
-                                          18.0,
-                                        ),
-                                      ),
-                                    ],
+                                ],
+                              ),
+                              const SizedBox(height: 5.0),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.calendar_month,
+                                    color: Colors.blue,
+                                    size: 25.0,
+                                  ),
+                                  const SizedBox(width: 5.0),
+                                  SizedBox(
+                                    width:
+                                        MediaQuery.of(context).size.width / 3,
+                                    child: Text(
+                                      '${ds['checkIn']} to ${ds['checkOut']}',
+                                      style: AppWidget.normalTextStyle(15.0),
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 5.0),
+                              Row(
+                                children: [
+                                  Icon(
+                                    Icons.group,
+                                    color: Colors.blue,
+                                    size: 30.0,
+                                  ),
+                                  const SizedBox(width: 7.0),
+                                  Text(
+                                    ds['noOfGuests'],
+                                    style: AppWidget.headLineTextStyle(18.0),
+                                  ),
+                                  const SizedBox(width: 10.0),
+                                  Icon(
+                                    Icons.monetization_on,
+                                    color: Colors.blue,
+                                    size: 25.0,
+                                  ),
+                                  const SizedBox(width: 7.0),
+                                  Text(
+                                    ds['amount'],
+                                    style: AppWidget.headLineTextStyle(18.0),
                                   ),
                                 ],
                               ),
                             ],
                           ),
-                        ),
-                      )
-                      : Container();
+                        ],
+                      ),
+                    ),
+                  );
                 },
               ),
             )
-            : Container();
+            : Center(child: Container(child: Text('No Data Available yet')));
       },
     );
   }
@@ -188,7 +181,7 @@ class _HotelownerHomeState extends State<HotelownerHome> {
                           ),
                           const SizedBox(width: 5.0),
                           Text(
-                            'Hello Saka',
+                            'Hello $name',
                             style: AppWidget.boldWhiteTextStyle(20.0),
                           ),
                         ],
@@ -206,18 +199,21 @@ class _HotelownerHomeState extends State<HotelownerHome> {
                   ),
                   width: MediaQuery.of(context).size.width,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(topLeft: Radius.circular(30.0), topRight: Radius.circular(30.0)),
-                     color: Color(0xffececf8),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(30.0),
+                      topRight: Radius.circular(30.0),
                     ),
-                    child: Column(
-                      children: [
-                        SizedBox(height: 20.0,),
-                        Container(
-                          height: MediaQuery.of(context).size.height/1.4,
-                          child: allAdminBookings(),
-                        )
-                      ],
-                    ),
+                    color: Color(0xffececf8),
+                  ),
+                  child: Column(
+                    children: [
+                      SizedBox(height: 20.0),
+                      Container(
+                        height: MediaQuery.of(context).size.height / 1.4,
+                        child: allAdminBookings(),
+                      ),
+                    ],
+                  ),
                 ),
               ],
             ),

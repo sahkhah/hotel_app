@@ -47,7 +47,7 @@ class _DetailPageState extends State<DetailPage> {
 
   getOnTheLoad() async {
     userName = await SharedPrefHelper().getUserName();
-    userId = await SharedPrefHelper().getUserId();
+    userId = await SharedPrefHelper().getUserId();//id from the user that just signup/login
     userImage =
         await SharedPrefHelper().getUserImage() ?? 'Image dosen\'t exist';
     setState(() {});
@@ -342,11 +342,11 @@ class _DetailPageState extends State<DetailPage> {
                             GestureDetector(
                               onTap: () async {
 
-                                 String userBookingId = randomNumeric(10);
+                                 String bookingId = randomNumeric(10);
                                  
                               Map<String, dynamic> userBookingInfo = {
                                 'userName': userName,
-                                'userId': userId,
+                                'userId': userId, //id from the just signup or login user
                                 //'userImage': userImage,
                                 'checkIn': formatDate(startDate),
                                 'checkOut': formatDate(endDate),
@@ -358,13 +358,13 @@ class _DetailPageState extends State<DetailPage> {
                                 await DatabaseMethods().addUserBooking(
                                 userBookingInfo,
                                 userId!,
-                                userBookingId,
+                                bookingId,
                               );
 
                               await DatabaseMethods().addHotelOwnerBooking(
                                 userBookingInfo,
                                 widget.id,
-                                userBookingId,
+                                bookingId,
                               );
 
                                 ScaffoldMessenger.of(

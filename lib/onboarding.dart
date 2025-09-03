@@ -17,7 +17,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     return Scaffold(
       body: Stack(
         children: [
-          Container(
+          SizedBox(
             width: MediaQuery.of(context).size.width,
             child: Image.asset('images/bg.png', fit: BoxFit.cover),
           ),
@@ -176,7 +176,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
                     )
                     : GestureDetector(
                       onTap: () {
-                        isHotelOwner = !isHotelOwner;
+                        isHotelOwner = false;
                         isGuest = !isGuest;
                         setState(() {});
                       },

@@ -22,10 +22,12 @@ class _HotelDetailState extends State<HotelDetail> {
   bool isChecked3 = false;
   bool isChecked4 = false;
 
-  String? userId;
+//remember we took the id of the hotel owner role in the signup page
+  String? hotelOwnerId;
 
   getOnTheShared() async {
-    userId = await SharedPrefHelper().getUserId();
+    //calling the hotel owner id from the sharedpreference which is a random id obtained from the signup page
+    hotelOwnerId = await SharedPrefHelper().getUserId();
     setState(() {});
   }
 
@@ -294,7 +296,7 @@ class _HotelDetailState extends State<HotelDetail> {
                                 await (await task).ref.getDownloadURL(); */
 
                             Map<String, dynamic> hotelMap = {
-                              'id': userId,
+                              'id': hotelOwnerId, //random id gotten from the signup page and also saved into local storage
                               'image': "'",
                               'hotelName': hotelName.text,
                               'hotelCharges': hotelCharges.text,
@@ -306,7 +308,7 @@ class _HotelDetailState extends State<HotelDetail> {
                               'Bathroom': isChecked4 ? 'true' : 'false',
                             };
 
-                            await DatabaseMethods().addHotel(hotelMap, userId!);
+                            await DatabaseMethods().addHotel(hotelMap, hotelOwnerId!);
                             //await SharedPrefHelper().saveUserId(userId);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(

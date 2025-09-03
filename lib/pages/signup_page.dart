@@ -45,7 +45,7 @@ class _SignupPageState extends State<SignupPage> {
         Map<String, dynamic> userInfo = {
           'name': name,
           'email': email,
-          'id': id,
+          'id': id, //the signup id is a random id we gave the user
           'image': imageUrl,
           'role': widget.redirect == 'Owner' ? 'Owner' : 'User',
         };

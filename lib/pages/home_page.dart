@@ -1,5 +1,6 @@
-import 'package:book_hotel/pages/detail_page.dart';
+import 'package:book_hotel/pages/book_hotel_page.dart';
 import 'package:book_hotel/services/database_helper.dart';
+import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
@@ -13,10 +14,16 @@ class HomePage extends StatefulWidget {
 
 class _HomePageState extends State<HomePage> {
   Stream? hotelStream;
+  String? name, userId;
 
   getData() async {
+    userId = await SharedPrefHelper().getUserId();
+   name = await SharedPrefHelper().getUserName();
+
     hotelStream = await DatabaseMethods().getHotel();
     setState(() {});
+    print(name);
+    print(userId);
   }
 
   @override
@@ -38,6 +45,7 @@ class _HomePageState extends State<HomePage> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
+                  print('userId here is ${ds['id']}');
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -51,8 +59,8 @@ class _HomePageState extends State<HomePage> {
                                 tv: ds['HD-TV'],
                                 bathroom: ds['Bathroom'],
                                 kitchen: ds['Kitchen'],
-                                description: ds['hotelDescription'], 
-                                id: ds['id'],
+                                description: ds['hotelDescription'],
+                                id: userId!,
                               ),
                         ),
                       );
@@ -244,7 +252,7 @@ class _HomePageState extends State<HomePage> {
                         ),
                         const SizedBox(height: 20.0),
                         Text(
-                          'Hey Kamil, Tell us where you want to go',
+                          'Hey $name Tell us where you want to go',
                           style: AppWidget.whiteTextStyle(20.0),
                         ),
                         const SizedBox(height: 30.0),

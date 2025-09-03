@@ -1,4 +1,4 @@
-import 'package:book_hotel/pages/booking_page.dart';
+import 'package:book_hotel/pages/user_booking_page.dart';
 import 'package:book_hotel/pages/home_page.dart';
 import 'package:book_hotel/pages/profile_page.dart';
 import 'package:book_hotel/pages/wallet_page.dart';

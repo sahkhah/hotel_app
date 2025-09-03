@@ -12,12 +12,12 @@ class DatabaseMethods {
         .set(userInfo);
   }
 
-  //id is from the saved hotel owner user...
+  //id is a random number gotten from the signup page
   //a hotel owner can also be a user
   Future addHotel(Map<String, dynamic> hotelInfo, String userId) async {
     return await FirebaseFirestore.instance
         .collection('Hotels')
-        .doc(userId)
+        .doc(userId)//random id passed from the signup page to the hotel_details page
         .set(hotelInfo);
   }
 

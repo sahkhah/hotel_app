@@ -2,6 +2,7 @@ import 'package:book_hotel/hotel%20_owner/hotelowner_home.dart';
 import 'package:book_hotel/pages/bottom_nav.dart';
 import 'package:book_hotel/pages/signup_page.dart';
 import 'package:book_hotel/services/database_helper.dart';
+import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -29,9 +30,12 @@ class _LoginPageState extends State<LoginPage> {
 
       final snapshot = await DatabaseMethods().getUserByEmail(email!);
       name = snapshot.docs[0]['name'];
-      id = snapshot.docs[0]['id'];
+      id = snapshot.docs[0]['id'];  //still the same random id we generated and sent to the backend
       role = snapshot.docs[0]['role'];
 
+       await SharedPrefHelper().saveUserId(id!); //resaving the same id
+        await SharedPrefHelper().saveUsername(name!);
+        await SharedPrefHelper().saveUserEmail(email!);
 
      role == 'owner' ?  Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
