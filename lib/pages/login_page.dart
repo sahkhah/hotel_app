@@ -16,7 +16,7 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  String? email, password, name, id, role;
+  String? email, password, name, id, role, walletAmount;
 
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
@@ -32,10 +32,12 @@ class _LoginPageState extends State<LoginPage> {
       name = snapshot.docs[0]['name'];
       id = snapshot.docs[0]['id'];  //still the same random id we generated and sent to the backend
       role = snapshot.docs[0]['role'];
+      walletAmount = snapshot.docs[0]['walletAmount'];
 
        await SharedPrefHelper().saveUserId(id!); //resaving the same id
         await SharedPrefHelper().saveUsername(name!);
         await SharedPrefHelper().saveUserEmail(email!);
+        await SharedPrefHelper().saveUserEmail(walletAmount!) ;
 
      role == 'owner' ?  Navigator.pushReplacement(
         // ignore: use_build_context_synchronously
@@ -220,6 +222,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ],
               ),
+             
             ],
           ),
         ),

@@ -41,12 +41,14 @@ class _SignupPageState extends State<SignupPage> {
         await SharedPrefHelper().saveUsername(nameController.text);
         await SharedPrefHelper().saveUserEmail(emailController.text);
         await SharedPrefHelper().saveUserImage(imageUrl);
+        await SharedPrefHelper().saveUserWallet('0');
 
         Map<String, dynamic> userInfo = {
           'name': name,
           'email': email,
           'id': id, //the signup id is a random id we gave the user
           'image': imageUrl,
+          'walletAmount': '0',
           'role': widget.redirect == 'Owner' ? 'Owner' : 'User',
         };
 

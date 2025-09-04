@@ -17,7 +17,9 @@ class DatabaseMethods {
   Future addHotel(Map<String, dynamic> hotelInfo, String userId) async {
     return await FirebaseFirestore.instance
         .collection('Hotels')
-        .doc(userId)//random id passed from the signup page to the hotel_details page
+        .doc(
+          userId,
+        ) //random id passed from the signup page to the hotel_details page
         .set(hotelInfo);
   }
 
@@ -59,7 +61,6 @@ class DatabaseMethods {
         .snapshots();
   }
 
-
   Future<Stream<QuerySnapshot>> getHotelOwnerBookings(String id) async {
     return FirebaseFirestore.instance
         .collection('Hotels')
@@ -73,5 +74,11 @@ class DatabaseMethods {
         .collection('Users')
         .where('Email', isEqualTo: email)
         .get();
+  }
+
+  Future updateWallet(String id, String walletAmount) async {
+    return await FirebaseFirestore.instance.collection('Users').doc(id).update({
+      'wallet': walletAmount,
+    });
   }
 }
