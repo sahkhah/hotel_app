@@ -53,6 +53,17 @@ class DatabaseMethods {
         .set(userInfo);
   }
 
+  Future addUserTransactions(
+    Map<String, dynamic> userInfo,
+    String id,)
+    async {
+    return await FirebaseFirestore.instance
+        .collection('Users')
+        .doc(id)
+        .collection('Transactions')
+        .add(userInfo);
+  }
+
   Future<Stream<QuerySnapshot>> getUserBookings(String id) async {
     return FirebaseFirestore.instance
         .collection('Users')
@@ -66,6 +77,14 @@ class DatabaseMethods {
         .collection('Hotels')
         .doc(id)
         .collection('Booking')
+        .snapshots();
+  }
+
+  Future<Stream<QuerySnapshot>> getUserTransactions(String id) async {
+    return FirebaseFirestore.instance
+        .collection('Users')
+        .doc(id)
+        .collection('Transactions')
         .snapshots();
   }
 
