@@ -1,3 +1,4 @@
+import 'package:book_hotel/city_hotel.dart';
 import 'package:book_hotel/pages/book_hotel_page.dart';
 import 'package:book_hotel/services/database_helper.dart';
 import 'package:book_hotel/services/shared_prefs.dart';
@@ -16,19 +17,54 @@ class _HomePageState extends State<HomePage> {
   Stream? hotelStream;
   String? name, userId;
 
+  int? mumbaiLength, newYorkLength, baliLength, dubaiLength;
+
+  Future<void> getCityCount() async {
+    final firestore = FirebaseFirestore.instance;
+
+    final mumbaiQuerySnapshot =
+        await firestore
+            .collection('Hotels')
+            .where('hotelCity', isEqualTo: 'mumbai')
+            .get();
+    mumbaiLength = mumbaiQuerySnapshot.docs.length;
+
+    final newYourkQuerySnapshot =
+        await firestore
+            .collection('Hotels')
+            .where('hotelCity', isEqualTo: 'newyork')
+            .get();
+    newYorkLength = newYourkQuerySnapshot.docs.length;
+
+    final baliQuerySnapshot =
+        await firestore
+            .collection('Hotels')
+            .where('hotelCity', isEqualTo: 'bali')
+            .get();
+    baliLength = baliQuerySnapshot.docs.length;
+
+    final dubaiQuerySnapshot =
+        await firestore
+            .collection('Hotels')
+            .where('hotelCity', isEqualTo: 'dubai')
+            .get();
+    dubaiLength = dubaiQuerySnapshot.docs.length;
+
+    setState(() {});
+  }
+
   getData() async {
     userId = await SharedPrefHelper().getUserId();
-   name = await SharedPrefHelper().getUserName();
+    name = await SharedPrefHelper().getUserName();
 
     hotelStream = await DatabaseMethods().getHotel();
     setState(() {});
-    print(name);
-    print(userId);
   }
 
   @override
   void initState() {
     getData();
+    getCityCount();
     super.initState();
   }
 
@@ -305,49 +341,59 @@ class _HomePageState extends State<HomePage> {
                   scrollDirection: Axis.horizontal,
                   shrinkWrap: true,
                   children: [
-                    Container(
-                      margin: const EdgeInsets.only(left: 15.0, bottom: 5.0),
-                      child: Material(
-                        elevation: 3.0,
-                        borderRadius: BorderRadius.circular(30.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            color: Colors.white,
+                    GestureDetector(
+                      onTap: () async {
+                        await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CityHotel(city: 'Mumbai'),
                           ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(30.0),
-                                child: Image.asset(
-                                  'images/mumbai.jpg',
-                                  width: 180,
-                                  height: 180,
-                                  fit: BoxFit.cover,
+                        );
+                      },
+                      child: Container(
+                        margin: const EdgeInsets.only(left: 15.0, bottom: 5.0),
+                        child: Material(
+                          elevation: 3.0,
+                          borderRadius: BorderRadius.circular(30.0),
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(30.0),
+                              color: Colors.white,
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                ClipRRect(
+                                  borderRadius: BorderRadius.circular(30.0),
+                                  child: Image.asset(
+                                    'images/mumbai.jpg',
+                                    width: 180,
+                                    height: 180,
+                                    fit: BoxFit.cover,
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Text(
-                                  'Mumbai',
-                                  style: AppWidget.headLineTextStyle(20.0),
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20.0),
+                                  child: Text(
+                                    'Mumbai',
+                                    style: AppWidget.headLineTextStyle(20.0),
+                                  ),
                                 ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.hotel, color: Colors.blue),
-                                    SizedBox(width: 5.0),
-                                    Text(
-                                      '10 Hotels',
-                                      style: AppWidget.normalTextStyle(18.0),
-                                    ),
-                                  ],
+                                Padding(
+                                  padding: const EdgeInsets.only(left: 20.0),
+                                  child: Row(
+                                    children: [
+                                      Icon(Icons.hotel, color: Colors.blue),
+                                      SizedBox(width: 5.0),
+                                      Text(
+                                        '10 Hotels',
+                                        style: AppWidget.normalTextStyle(18.0),
+                                      ),
+                                    ],
+                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
                         ),
                       ),

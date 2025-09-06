@@ -88,6 +88,13 @@ class DatabaseMethods {
         .snapshots();
   }
 
+  Future<Stream<QuerySnapshot>> getUserCityHotel(String city) async {
+    return FirebaseFirestore.instance
+        .collection('Hotels')
+       .where('hotelCity' , isEqualTo: city.toLowerCase())
+        .snapshots();
+  }
+
   Future<QuerySnapshot> getUserByEmail(String email) async {
     return await FirebaseFirestore.instance
         .collection('Users')

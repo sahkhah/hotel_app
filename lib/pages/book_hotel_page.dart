@@ -43,11 +43,14 @@ class _DetailPageState extends State<DetailPage> {
   DateTime? endDate;
   int daysDifference = 1;
   int? finalAmount;
-  String? userName, userId, userImage;
+  String? userName, userId, userImage, walletAmount;
 
   getOnTheLoad() async {
     userName = await SharedPrefHelper().getUserName();
-    userId = await SharedPrefHelper().getUserId();//id from the user that just signup/login
+    walletAmount = await SharedPrefHelper().getUserWallet();
+    userId =
+        await SharedPrefHelper()
+            .getUserId(); //id from the user that just signup/login
     userImage =
         await SharedPrefHelper().getUserImage() ?? 'Image dosen\'t exist';
     setState(() {});
@@ -341,35 +344,59 @@ class _DetailPageState extends State<DetailPage> {
                             const SizedBox(height: 20.0),
                             GestureDetector(
                               onTap: () async {
+                                String bookingId = randomNumeric(10);
 
-                                 String bookingId = randomNumeric(10);
-                                 
-                              Map<String, dynamic> userBookingInfo = {
-                                'userName': userName,
-                                'userId': userId, //id from the just signup or login user
-                                //'userImage': userImage,
-                                'checkIn': formatDate(startDate),
-                                'checkOut': formatDate(endDate),
-                                'noOfGuests': guestController.text,
-                                'amount': finalAmount.toString(),
-                                'hotelName': widget.name,
-                              };
+                                Map<String, dynamic> userBookingInfo = {
+                                  'userName': userName,
+                                  'userId':
+                                      userId, //id from the just signup or login user
+                                  //'userImage': userImage,
+                                  'checkIn': formatDate(startDate),
+                                  'checkOut': formatDate(endDate),
+                                  'noOfGuests': guestController.text,
+                                  'amount': finalAmount.toString(),
+                                  'hotelName': widget.name,
+                                };
 
                                 await DatabaseMethods().addUserBooking(
-                                userBookingInfo,
-                                userId!,
-                                bookingId,
-                              );
+                                  userBookingInfo,
+                                  userId!,
+                                  bookingId,
+                                );
 
-                              await DatabaseMethods().addHotelOwnerBooking(
-                                userBookingInfo,
-                                widget.id,
-                                bookingId,
-                              );
+                                await DatabaseMethods().addHotelOwnerBooking(
+                                  userBookingInfo,
+                                  widget.id,
+                                  bookingId,
+                                );
 
-                                ScaffoldMessenger.of(
-                                  context,
-                                ).showSnackBar(SnackBar(content: Text('Booked Successfully')));
+                                if (int.parse(walletAmount!) > finalAmount!) {
+                                  int updatedAmount =
+                                      int.parse(walletAmount!) - finalAmount!;
+                                  await DatabaseMethods().updateWallet(
+                                    userId!,
+                                    updatedAmount.toString(),
+                                  );
+                                  await SharedPrefHelper().saveUserWallet(
+                                    updatedAmount.toString(),
+                                  );
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Colors.green,
+
+                                      content: Text('Booked Successfully'),
+                                    ),
+                                  );
+                                } else {
+                                  ScaffoldMessenger.of(context).showSnackBar(
+                                    SnackBar(
+                                      backgroundColor: Colors.red,
+
+                                      content: Text('Please add money to your wallet'),
+                                    ),
+                                  );
+                                }
+
                                 makePayment(finalAmount.toString());
                               },
                               child: Container(
@@ -414,10 +441,8 @@ class _DetailPageState extends State<DetailPage> {
             ),
           )
           .then((value) {
-      displayPaymentSheet(amount);
-
+            displayPaymentSheet(amount);
           });
-
 
       print('payment sucessful');
     } catch (e, s) {
@@ -463,8 +488,6 @@ class _DetailPageState extends State<DetailPage> {
           'hotelName': widget.name,
         };
 
-        
-
         await DatabaseMethods().addUserBooking(
           userBookingInfo,
           userId!,
@@ -476,12 +499,10 @@ class _DetailPageState extends State<DetailPage> {
           userBookingId,
         );
 
-       
-
         showDialog(
           context: context,
           builder: (_) {
-          return AlertDialog(
+            return AlertDialog(
               content: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
@@ -498,7 +519,7 @@ class _DetailPageState extends State<DetailPage> {
           },
         );
       });
-     
+
       ScaffoldMessenger.of(
         context,
       ).showSnackBar(SnackBar(content: Text('Booked Successfully')));

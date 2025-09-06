@@ -50,7 +50,7 @@ class _WalletPageState extends State<WalletPage> {
             itemBuilder: (context, index) {
               DocumentSnapshot ds = snapshot.data.docs[index];
               return Container(
-              margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+              margin: const EdgeInsets.only(left: 10.0, right: 10.0, ),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.0),
@@ -92,7 +92,7 @@ class _WalletPageState extends State<WalletPage> {
             },
                           )
             : Container(
-              margin: const EdgeInsets.only(left: 10.0, right: 10.0),
+              margin: const EdgeInsets.only(left: 10.0, right: 10.0, bottom: 20.0),
               decoration: BoxDecoration(
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(10.0),
@@ -275,6 +275,7 @@ class _WalletPageState extends State<WalletPage> {
                       style: AppWidget.headLineTextStyle(20.0),
                     ),
                     const SizedBox(height: 10.0),
+                    allTransactions(),
                     allTransactions(),
                   ],
                 ),

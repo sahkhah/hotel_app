@@ -22,12 +22,15 @@ class _HotelDetailState extends State<HotelDetail> {
   bool isChecked3 = false;
   bool isChecked4 = false;
 
-//remember we took the id of the hotel owner role in the signup page
+  //remember we took the id of the hotel owner role in the signup page
   String? hotelOwnerId;
+  String? walletAmount;
 
   getOnTheShared() async {
     //calling the hotel owner id from the sharedpreference which is a random id obtained from the signup page
     hotelOwnerId = await SharedPrefHelper().getUserId();
+    walletAmount = await SharedPrefHelper().getUserWallet();
+
     setState(() {});
   }
 
@@ -41,6 +44,7 @@ class _HotelDetailState extends State<HotelDetail> {
   TextEditingController hotelCharges = TextEditingController();
   TextEditingController hotelAddress = TextEditingController();
   TextEditingController hotelDescription = TextEditingController();
+  TextEditingController hotelCity = TextEditingController();
 
   File? selectedImage;
   final ImagePicker _picker = ImagePicker();
@@ -182,6 +186,24 @@ class _HotelDetailState extends State<HotelDetail> {
                           ),
                         ),
                       ),
+                      Text('City', style: AppWidget.normalTextStyle(20.0)),
+                      const SizedBox(height: 10.0),
+                      Container(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(15.0),
+                          color: Color(0xffececf8),
+                        ),
+                        child: TextField(
+                          maxLines: 3,
+                          controller: hotelCity,
+                          decoration: InputDecoration(
+                            hintStyle: AppWidget.normalTextStyle(16.0),
+                            hintText: 'Enter City',
+                            border: InputBorder.none,
+                          ),
+                        ),
+                      ),
                       const SizedBox(height: 20.0),
                       Text(
                         'What service do you want to offer?',
@@ -295,10 +317,17 @@ class _HotelDetailState extends State<HotelDetail> {
                             var downloadUrl =
                                 await (await task).ref.getDownloadURL(); */
 
+                            String firstName =
+                                hotelName.text.substring(0, 1).toUpperCase();
+
                             Map<String, dynamic> hotelMap = {
-                              'id': hotelOwnerId, //random id gotten from the signup page and also saved into local storage
+                              'searchKey' : firstName.toUpperCase(),
+                              'updatedName' : hotelName.text.toUpperCase(),
+                              'id':
+                                  hotelOwnerId, //random id gotten from the signup page and also saved into local storage
                               'image': "'",
                               'hotelName': hotelName.text,
+                              'hotelCity': hotelCity.text,
                               'hotelCharges': hotelCharges.text,
                               'hotelAddress': hotelAddress.text,
                               'hotelDescription': hotelDescription.text,
@@ -308,7 +337,10 @@ class _HotelDetailState extends State<HotelDetail> {
                               'Bathroom': isChecked4 ? 'true' : 'false',
                             };
 
-                            await DatabaseMethods().addHotel(hotelMap, hotelOwnerId!);
+                            await DatabaseMethods().addHotel(
+                              hotelMap,
+                              hotelOwnerId!,
+                            );
                             //await SharedPrefHelper().saveUserId(userId);
                             ScaffoldMessenger.of(context).showSnackBar(
                               SnackBar(
