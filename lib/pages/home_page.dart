@@ -17,6 +17,45 @@ class _HomePageState extends State<HomePage> {
   Stream? hotelStream;
   String? name, userId;
 
+  bool search = false;
+
+  var queryResult = [];
+  var tempResultSet = [];
+
+  TextEditingController searchController = TextEditingController();
+
+  initiateSearch(value) {
+    if (value.length == 0) {
+      setState(() {
+        queryResult = [];
+        tempResultSet = [];
+      });
+    }
+    setState(() {
+      search = true;
+    });
+
+    var capitalizedValue =
+        value.substring(0, 1).toUpperCase() + value.substring(1);
+    if (queryResult.isEmpty && value.length == 1) {
+      DatabaseMethods().search(value).then((QuerySnapshot snapshot) {
+        for (int i = 0; i < snapshot.docs.length; i++) {
+          queryResult.add(snapshot.docs[i].data());
+          queryResult.forEach(print);
+        }
+      });
+    } else {
+      tempResultSet = [];
+      for (var element in queryResult) {
+        if (element['updatedName'].startsWith(capitalizedValue)) {
+          setState(() {
+            tempResultSet.add(element);
+            });
+        }
+      }
+    }
+  }
+
   int? mumbaiLength, newYorkLength, baliLength, dubaiLength;
 
   Future<void> getCityCount() async {
@@ -55,7 +94,7 @@ class _HomePageState extends State<HomePage> {
 
   getData() async {
     userId = await SharedPrefHelper().getUserId();
-    name = await SharedPrefHelper().getUserName();
+    name = await SharedPrefHelper().getUserName() ?? 'Saka';
 
     hotelStream = await DatabaseMethods().getHotel();
     setState(() {});
@@ -81,7 +120,7 @@ class _HomePageState extends State<HomePage> {
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
                   DocumentSnapshot ds = snapshot.data.docs[index];
-                  print('userId here is ${ds['id']}');
+                  //print('userId here is ${ds['id']}');
                   return GestureDetector(
                     onTap: () {
                       Navigator.push(
@@ -300,6 +339,10 @@ class _HomePageState extends State<HomePage> {
                           ),
                           width: double.infinity,
                           child: TextField(
+                            controller: searchController,
+                            onChanged: (value) {
+                              initiateSearch(value);
+                            },
                             decoration: InputDecoration(
                               prefixIcon: Icon(
                                 Icons.search,
@@ -317,236 +360,348 @@ class _HomePageState extends State<HomePage> {
                 ],
               ),
               const SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 20.0),
-                child: Text(
-                  'The Most Relevant',
-                  style: AppWidget.headLineTextStyle(22.0),
-                ),
-              ),
-              const SizedBox(height: 15.0),
-              allHotels(),
-              SizedBox(height: 20.0),
-              Padding(
-                padding: const EdgeInsets.only(left: 15.0),
-                child: Text(
-                  'Discover new places',
-                  style: AppWidget.headLineTextStyle(22.0),
-                ),
-              ),
-              const SizedBox(height: 10.0),
-              SizedBox(
-                height: 250.0,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  shrinkWrap: true,
-                  children: [
-                    GestureDetector(
-                      onTap: () async {
-                        await Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => CityHotel(city: 'Mumbai'),
-                          ),
-                        );
-                      },
-                      child: Container(
-                        margin: const EdgeInsets.only(left: 15.0, bottom: 5.0),
-                        child: Material(
-                          elevation: 3.0,
-                          borderRadius: BorderRadius.circular(30.0),
-                          child: Container(
-                            decoration: BoxDecoration(
-                              borderRadius: BorderRadius.circular(30.0),
-                              color: Colors.white,
-                            ),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
+              search
+                  ? ListView(
+                    primary: false,
+                    shrinkWrap: true,
+                    padding: const EdgeInsets.only(left: 30.0, right: 30.0),
+                    children:
+                        tempResultSet.map((element) {
+                          return buildCard(element);
+                        }).toList(),
+                  )
+                  : Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 20.0),
+                        child: Text(
+                          'The Most Relevant',
+                          style: AppWidget.headLineTextStyle(22.0),
+                        ),
+                      ),
+                      const SizedBox(height: 15.0),
+                      allHotels(),
+                      SizedBox(height: 20.0),
+                      Padding(
+                        padding: const EdgeInsets.only(left: 15.0),
+                        child: Text(
+                          'Discover new places',
+                          style: AppWidget.headLineTextStyle(22.0),
+                        ),
+                      ),
+                      const SizedBox(height: 10.0),
+                      SizedBox(
+                        height: 250.0,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          shrinkWrap: true,
+                          children: [
+                            GestureDetector(
+                              onTap: () async {
+                                await Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder:
+                                        (context) => CityHotel(city: 'Mumbai'),
+                                  ),
+                                );
+                              },
+                              child: Container(
+                                margin: const EdgeInsets.only(
+                                  left: 15.0,
+                                  bottom: 5.0,
+                                ),
+                                child: Material(
+                                  elevation: 3.0,
                                   borderRadius: BorderRadius.circular(30.0),
-                                  child: Image.asset(
-                                    'images/mumbai.jpg',
-                                    width: 180,
-                                    height: 180,
-                                    fit: BoxFit.cover,
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(30.0),
+                                      color: Colors.white,
+                                    ),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
+                                      children: [
+                                        ClipRRect(
+                                          borderRadius: BorderRadius.circular(
+                                            30.0,
+                                          ),
+                                          child: Image.asset(
+                                            'images/mumbai.jpg',
+                                            width: 180,
+                                            height: 180,
+                                            fit: BoxFit.cover,
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 20.0,
+                                          ),
+                                          child: Text(
+                                            'Mumbai',
+                                            style: AppWidget.headLineTextStyle(
+                                              20.0,
+                                            ),
+                                          ),
+                                        ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 20.0,
+                                          ),
+                                          child: Row(
+                                            children: [
+                                              Icon(
+                                                Icons.hotel,
+                                                color: Colors.blue,
+                                              ),
+                                              SizedBox(width: 5.0),
+                                              Text(
+                                                mumbaiLength.toString() +
+                                                    ' Hotels',
+                                                style:
+                                                    AppWidget.normalTextStyle(
+                                                      18.0,
+                                                    ),
+                                              ),
+                                            ],
+                                          ),
+                                        ),
+                                      ],
+                                    ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20.0),
-                                  child: Text(
-                                    'Mumbai',
-                                    style: AppWidget.headLineTextStyle(20.0),
+                              ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(
+                                left: 15.0,
+                                bottom: 5.0,
+                              ),
+                              child: Material(
+                                elevation: 3.0,
+                                borderRadius: BorderRadius.circular(30.0),
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    color: Colors.white,
                                   ),
-                                ),
-                                Padding(
-                                  padding: const EdgeInsets.only(left: 20.0),
-                                  child: Row(
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      Icon(Icons.hotel, color: Colors.blue),
-                                      SizedBox(width: 5.0),
-                                      Text(
-                                        '10 Hotels',
-                                        style: AppWidget.normalTextStyle(18.0),
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          30.0,
+                                        ),
+                                        child: Image.asset(
+                                          'images/newyork.jpg',
+                                          width: 180,
+                                          height: 180,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20.0,
+                                        ),
+                                        child: Text(
+                                          'New York',
+                                          style: AppWidget.headLineTextStyle(
+                                            20.0,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20.0,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.hotel,
+                                              color: Colors.blue,
+                                            ),
+                                            SizedBox(width: 5.0),
+                                            Text(
+                                              '8 Hotels',
+                                              style: AppWidget.normalTextStyle(
+                                                18.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
                                       ),
                                     ],
                                   ),
                                 ),
-                              ],
+                              ),
                             ),
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 15.0, bottom: 5.0),
-                      child: Material(
-                        elevation: 3.0,
-                        borderRadius: BorderRadius.circular(30.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            color: Colors.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
+                            Container(
+                              margin: const EdgeInsets.only(
+                                left: 15.0,
+                                bottom: 5.0,
+                              ),
+                              child: Material(
+                                elevation: 3.0,
                                 borderRadius: BorderRadius.circular(30.0),
-                                child: Image.asset(
-                                  'images/newyork.jpg',
-                                  width: 180,
-                                  height: 180,
-                                  fit: BoxFit.cover,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    color: Colors.white,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          30.0,
+                                        ),
+                                        child: Image.asset(
+                                          'images/bali.jpg',
+                                          width: 180,
+                                          height: 180,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20.0,
+                                        ),
+                                        child: Text(
+                                          'Bali',
+                                          style: AppWidget.headLineTextStyle(
+                                            20.0,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20.0,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.hotel,
+                                              color: Colors.blue,
+                                            ),
+                                            SizedBox(width: 5.0),
+                                            Text(
+                                              '9 Hotels',
+                                              style: AppWidget.normalTextStyle(
+                                                18.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Text(
-                                  'New York',
-                                  style: AppWidget.headLineTextStyle(20.0),
-                                ),
+                            ),
+                            Container(
+                              margin: const EdgeInsets.only(
+                                left: 15.0,
+                                bottom: 5.0,
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.hotel, color: Colors.blue),
-                                    SizedBox(width: 5.0),
-                                    Text(
-                                      '8 Hotels',
-                                      style: AppWidget.normalTextStyle(18.0),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 15.0, bottom: 5.0),
-                      child: Material(
-                        elevation: 3.0,
-                        borderRadius: BorderRadius.circular(30.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            color: Colors.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
+                              child: Material(
+                                elevation: 3.0,
                                 borderRadius: BorderRadius.circular(30.0),
-                                child: Image.asset(
-                                  'images/bali.jpg',
-                                  width: 180,
-                                  height: 180,
-                                  fit: BoxFit.cover,
+                                child: Container(
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(30.0),
+                                    color: Colors.white,
+                                  ),
+                                  child: Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      ClipRRect(
+                                        borderRadius: BorderRadius.circular(
+                                          30.0,
+                                        ),
+                                        child: Image.asset(
+                                          'images/newyork.jpg',
+                                          width: 180,
+                                          height: 180,
+                                          fit: BoxFit.cover,
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20.0,
+                                        ),
+                                        child: Text(
+                                          'Dubai',
+                                          style: AppWidget.headLineTextStyle(
+                                            20.0,
+                                          ),
+                                        ),
+                                      ),
+                                      Padding(
+                                        padding: const EdgeInsets.only(
+                                          left: 20.0,
+                                        ),
+                                        child: Row(
+                                          children: [
+                                            Icon(
+                                              Icons.hotel,
+                                              color: Colors.blue,
+                                            ),
+                                            SizedBox(width: 5.0),
+                                            Text(
+                                              '7 Hotels',
+                                              style: AppWidget.normalTextStyle(
+                                                18.0,
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                      ),
+                                    ],
+                                  ),
                                 ),
                               ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Text(
-                                  'Bali',
-                                  style: AppWidget.headLineTextStyle(20.0),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.hotel, color: Colors.blue),
-                                    SizedBox(width: 5.0),
-                                    Text(
-                                      '9 Hotels',
-                                      style: AppWidget.normalTextStyle(18.0),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                            const SizedBox(height: 50.0),
+                          ],
                         ),
                       ),
-                    ),
-                    Container(
-                      margin: const EdgeInsets.only(left: 15.0, bottom: 5.0),
-                      child: Material(
-                        elevation: 3.0,
-                        borderRadius: BorderRadius.circular(30.0),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(30.0),
-                            color: Colors.white,
-                          ),
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              ClipRRect(
-                                borderRadius: BorderRadius.circular(30.0),
-                                child: Image.asset(
-                                  'images/newyork.jpg',
-                                  width: 180,
-                                  height: 180,
-                                  fit: BoxFit.cover,
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Text(
-                                  'Dubai',
-                                  style: AppWidget.headLineTextStyle(20.0),
-                                ),
-                              ),
-                              Padding(
-                                padding: const EdgeInsets.only(left: 20.0),
-                                child: Row(
-                                  children: [
-                                    Icon(Icons.hotel, color: Colors.blue),
-                                    SizedBox(width: 5.0),
-                                    Text(
-                                      '7 Hotels',
-                                      style: AppWidget.normalTextStyle(18.0),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
-                    const SizedBox(height: 50.0),
-                  ],
-                ),
-              ),
-              const SizedBox(height: 50.0),
+                      const SizedBox(height: 50.0),
+                    ],
+                  ),
             ],
           ),
         ),
+      ),
+    );
+  }
+
+  Widget buildCard(element) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20.0),
+      ),
+      child: Row(
+        children: [
+          ClipRRect(
+            borderRadius: BorderRadius.circular(30.0),
+            child: Image.asset(
+              element['image'],
+              fit: BoxFit.cover,
+              height: 30,
+              width: 30,
+            ),
+          ),
+          const SizedBox(width: 15.0),
+          Text(element['hotelName'], style: AppWidget.headLineTextStyle(18.0)),
+          const SizedBox(width: 20.0),
+          Icon(Icons.arrow_forward, size: 20.0),
+        ],
       ),
     );
   }

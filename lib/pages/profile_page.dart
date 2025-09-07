@@ -1,3 +1,5 @@
+import 'package:book_hotel/onboarding.dart';
+import 'package:book_hotel/pages/signup_page.dart';
 import 'package:book_hotel/services/auth.dart';
 import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
@@ -11,13 +13,12 @@ class ProfilePage extends StatefulWidget {
 }
 
 class _ProfilePageState extends State<ProfilePage> {
-  String? name, email; 
-
+  String? name, email;
 
   getOnTheLoad() async {
     name = await SharedPrefHelper().getUserName() ?? 'User';
     email = await SharedPrefHelper().getUserEmail() ?? 'user@example.com';
-       setState(() {});
+    setState(() {});
   }
 
   @override
@@ -102,7 +103,16 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 30.0),
             GestureDetector(
-              onTap: () => Auth().signOut(),
+              onTap: () => Auth().signOut().then((_) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return OnboardingPage();
+                        },
+                      ),
+                    );
+                  }),
               child: Material(
                 elevation: 3,
                 borderRadius: BorderRadius.circular(10.0),
@@ -125,7 +135,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       Icon(
                         Icons.arrow_forward_ios_outlined,
-                        size: 30.0,
+                        size: 25.0,
                         color: Colors.deepPurple,
                       ),
                     ],
@@ -135,7 +145,17 @@ class _ProfilePageState extends State<ProfilePage> {
             ),
             const SizedBox(height: 30.0),
             GestureDetector(
-              onTap: () => Auth().deleteUser(),
+              onTap:
+                  () => Auth().deleteUser().then((_) {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return OnboardingPage();
+                        },
+                      ),
+                    );
+                  }),
               child: Material(
                 elevation: 3,
                 borderRadius: BorderRadius.circular(10.0),
@@ -158,7 +178,7 @@ class _ProfilePageState extends State<ProfilePage> {
                       ),
                       Icon(
                         Icons.arrow_forward_ios_outlined,
-                        size: 30.0,
+                        size: 25.0,
                         color: Colors.deepPurple,
                       ),
                     ],

@@ -102,6 +102,13 @@ class DatabaseMethods {
         .get();
   }
 
+  Future<QuerySnapshot> search(String value) async {
+    return await FirebaseFirestore.instance
+        .collection('Hotels')
+        .where('searchKey', isEqualTo: value.substring(0,1).toUpperCase())
+        .get();
+  }
+
   Future updateWallet(String id, String walletAmount) async {
     return await FirebaseFirestore.instance.collection('Users').doc(id).update({
       'wallet': walletAmount,
