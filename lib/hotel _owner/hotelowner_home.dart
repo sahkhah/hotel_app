@@ -1,3 +1,5 @@
+import 'package:book_hotel/onboarding.dart';
+import 'package:book_hotel/services/auth.dart';
 import 'package:book_hotel/services/database_helper.dart';
 import 'package:book_hotel/services/shared_prefs.dart';
 import 'package:book_hotel/services/widget_support.dart';
@@ -19,13 +21,11 @@ class _HotelownerHomeState extends State<HotelownerHome> {
   getOnTheShared() async {
     hotelOwnerId = await SharedPrefHelper().getUserId();
     name = await SharedPrefHelper().getUserName();
-     hotelBookings = await DatabaseMethods().getHotelOwnerBookings(
-        hotelOwnerId!,
-      );
+    hotelBookings = await DatabaseMethods().getHotelOwnerBookings(
+      hotelOwnerId!,
+    );
 
-    setState(()  {
-     
-    });
+    setState(() {});
     print('userId is $hotelOwnerId');
   }
 
@@ -183,6 +183,24 @@ class _HotelownerHomeState extends State<HotelownerHome> {
                           Text(
                             'Hello $name',
                             style: AppWidget.boldWhiteTextStyle(20.0),
+                          ),
+                          const SizedBox(width: 10.0),
+                          TextButton(
+                            onPressed: () {
+                              Auth().signOut();
+                              Navigator.pushReplacement(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return OnboardingPage();
+                                  },
+                                ),
+                              );
+                            },
+                            child: Text(
+                              'Logout',
+                              style: AppWidget.boldWhiteTextStyle(15.0),
+                            ),
                           ),
                         ],
                       ),
